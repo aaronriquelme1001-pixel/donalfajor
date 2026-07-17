@@ -206,11 +206,11 @@ export default function SocialMediaGenerator() {
 
               {/* Logo Badge in Header */}
               <div className="canvas-logo-container">
-                <div className="canvas-logo-wrap">
-                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="canvas-logo" />
+                <div className="canvas-logo-circle" style={{ borderColor: isDarkTheme ? '#FFFDF9' : 'var(--border-pencil)', borderWidth: '2px' }}>
+                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" />
                 </div>
                 <div>
-                  <div className="canvas-brand-name" style={{ color: customTextColor }}>Don Alfajor</div>
+                  <div className="canvas-brand-name" style={{ color: customTextColor, fontFamily: 'var(--font-heading)', fontWeight: 'bold' }}>Don Alfajor</div>
                   <div className="canvas-brand-sub" style={{ color: customAccentColor, fontFamily: 'var(--font-handwritten)', fontWeight: 'bold' }}>Sabores de Autor ✨</div>
                 </div>
               </div>
