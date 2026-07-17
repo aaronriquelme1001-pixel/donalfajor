@@ -62,6 +62,8 @@ export default function PrintableMenus() {
           <div className="print-page-a4">
             <span style={{ position: 'absolute', top: '15px', left: '20px', fontSize: '1.5rem', opacity: 0.2 }}>☁️</span>
             <span style={{ position: 'absolute', top: '15px', right: '20px', fontSize: '1.5rem', opacity: 0.2 }}>☀️</span>
+            <span style={{ position: 'absolute', bottom: '65px', left: '20px', fontSize: '1.5rem', opacity: 0.15 }}>⭐</span>
+            <span style={{ position: 'absolute', bottom: '65px', right: '20px', fontSize: '1.5rem', opacity: 0.15 }}>❤️</span>
             
             {/* Header */}
             <div className="print-header">
@@ -151,8 +153,10 @@ export default function PrintableMenus() {
         {activeLayout === 'split-lines' && (
           <>
             {/* Sheet 1: Classics */}
-            <div className="print-page-a4" style={{ padding: '40px 50px' }}>
+            <div className="print-page-a4" style={{ padding: '25px 45px' }}>
               <span style={{ position: 'absolute', top: '15px', right: '20px', fontSize: '1.5rem', opacity: 0.2 }}>☀️</span>
+              <span style={{ position: 'absolute', bottom: '60px', left: '20px', fontSize: '1.5rem', opacity: 0.15 }}>⭐</span>
+              <span style={{ position: 'absolute', bottom: '60px', right: '20px', fontSize: '1.5rem', opacity: 0.15 }}>❤️</span>
               
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius: '50%' }}>
@@ -163,28 +167,28 @@ export default function PrintableMenus() {
               </div>
 
               {/* Flex list showing Polaroid + description side by side */}
-              <div className="print-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', justifyContent: 'center' }}>
+              <div className="print-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', justifyContent: 'flex-start' }}>
                 {classics.map((f, i) => (
-                  <div key={f.id} style={{ display: 'flex', gap: '2rem', alignItems: 'center', width: '100%', borderBottom: '2px dashed var(--border-pencil)', paddingBottom: '1rem' }}>
+                  <div key={f.id} style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', width: '100%', borderBottom: '2px dashed var(--border-pencil)', paddingBottom: '0.5rem' }}>
                     
                     {/* Small Polaroid */}
-                    <div style={{ width: '140px', flexShrink: 0 }}>
-                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`, width: '100%' }}>
-                        <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
+                    <div style={{ width: '110px', flexShrink: 0 }}>
+                      <div className="polaroid-frame" style={{ padding: '6px 6px 12px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`, width: '100%' }}>
+                        <div className="polaroid-image-wrapper" style={{ height: '70px' }}>
                           <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
-                        <div className="polaroid-caption" style={{ fontSize: '1rem', marginTop: '6px' }}>{f.emoji} {f.name}</div>
+                        <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px' }}>{f.emoji} {f.name}</div>
                       </div>
                     </div>
 
                     {/* Info */}
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.25rem', marginBottom: '0.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.15rem' }}>
                         <span style={{ color: 'var(--accent-brown)' }}>{f.name}</span>
                         <span style={{ color: 'var(--accent-pink)' }}>$1.000</span>
                       </div>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{f.description}</p>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', margin: '0 0 2px 0', lineHeight: '1.25' }}>{f.description}</p>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                         {f.filling} • {f.coating} • {f.dough}
                       </div>
                     </div>
@@ -199,8 +203,10 @@ export default function PrintableMenus() {
             </div>
 
             {/* Sheet 2: Fruits */}
-            <div className="print-page-a4" style={{ padding: '40px 50px' }}>
+            <div className="print-page-a4" style={{ padding: '25px 45px' }}>
               <span style={{ position: 'absolute', top: '15px', left: '20px', fontSize: '1.5rem', opacity: 0.2 }}>☁️</span>
+              <span style={{ position: 'absolute', bottom: '60px', left: '20px', fontSize: '1.5rem', opacity: 0.15 }}>☀️</span>
+              <span style={{ position: 'absolute', bottom: '60px', right: '20px', fontSize: '1.5rem', opacity: 0.15 }}>⭐</span>
               
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius: '50%' }}>
@@ -210,28 +216,28 @@ export default function PrintableMenus() {
                 <span className="print-subtitle" style={{ color: 'var(--accent-blue)' }}>Línea Frutales y Exóticos 🍋</span>
               </div>
 
-              <div className="print-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', justifyContent: 'center' }}>
+              <div className="print-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', justifyContent: 'flex-start' }}>
                 {fruit.map((f, i) => (
-                  <div key={f.id} style={{ display: 'flex', gap: '2rem', alignItems: 'center', width: '100%', borderBottom: '2px dashed var(--border-pencil)', paddingBottom: '1rem' }}>
+                  <div key={f.id} style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', width: '100%', borderBottom: '2px dashed var(--border-pencil)', paddingBottom: '0.5rem' }}>
                     
                     {/* Small Polaroid */}
-                    <div style={{ width: '140px', flexShrink: 0 }}>
-                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)`, width: '100%' }}>
-                        <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
+                    <div style={{ width: '110px', flexShrink: 0 }}>
+                      <div className="polaroid-frame" style={{ padding: '6px 6px 12px', transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)`, width: '100%' }}>
+                        <div className="polaroid-image-wrapper" style={{ height: '70px' }}>
                           <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
-                        <div className="polaroid-caption" style={{ fontSize: '1rem', marginTop: '6px' }}>{f.emoji} {f.name}</div>
+                        <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px' }}>{f.emoji} {f.name}</div>
                       </div>
                     </div>
 
                     {/* Info */}
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.25rem', marginBottom: '0.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.15rem' }}>
                         <span style={{ color: 'var(--accent-brown)' }}>{f.name}</span>
                         <span style={{ color: 'var(--accent-pink)' }}>$1.000</span>
                       </div>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{f.description}</p>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', margin: '0 0 2px 0', lineHeight: '1.25' }}>{f.description}</p>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                         {f.filling} • {f.coating} • {f.dough}
                       </div>
                     </div>
@@ -246,8 +252,10 @@ export default function PrintableMenus() {
             </div>
 
             {/* Sheet 3: Gourmet */}
-            <div className="print-page-a4" style={{ padding: '40px 50px' }}>
+            <div className="print-page-a4" style={{ padding: '25px 45px' }}>
               <span style={{ position: 'absolute', top: '15px', right: '20px', fontSize: '1.5rem', opacity: 0.2 }}>⭐️</span>
+              <span style={{ position: 'absolute', bottom: '60px', left: '20px', fontSize: '1.5rem', opacity: 0.15 }}>☁️</span>
+              <span style={{ position: 'absolute', bottom: '60px', right: '20px', fontSize: '1.5rem', opacity: 0.15 }}>❤️</span>
               
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius: '50%' }}>
@@ -257,28 +265,28 @@ export default function PrintableMenus() {
                 <span className="print-subtitle" style={{ color: 'var(--accent-yellow)' }}>Línea Gourmet Premium 🍷</span>
               </div>
 
-              <div className="print-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', justifyContent: 'center' }}>
+              <div className="print-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', justifyContent: 'flex-start' }}>
                 {gourmet.map((f, i) => (
-                  <div key={f.id} style={{ display: 'flex', gap: '2rem', alignItems: 'center', width: '100%', borderBottom: '2px dashed var(--border-pencil)', paddingBottom: '1rem' }}>
+                  <div key={f.id} style={{ display: 'flex', gap: '1.2rem', alignItems: 'center', width: '100%', borderBottom: '2px dashed var(--border-pencil)', paddingBottom: '0.5rem' }}>
                     
                     {/* Small Polaroid */}
-                    <div style={{ width: '140px', flexShrink: 0 }}>
-                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`, width: '100%' }}>
-                        <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
+                    <div style={{ width: '110px', flexShrink: 0 }}>
+                      <div className="polaroid-frame" style={{ padding: '6px 6px 12px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`, width: '100%' }}>
+                        <div className="polaroid-image-wrapper" style={{ height: '70px' }}>
                           <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
-                        <div className="polaroid-caption" style={{ fontSize: '1rem', marginTop: '6px' }}>{f.emoji} {f.name}</div>
+                        <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px' }}>{f.emoji} {f.name}</div>
                       </div>
                     </div>
 
                     {/* Info */}
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.25rem', marginBottom: '0.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.15rem' }}>
                         <span style={{ color: 'var(--accent-brown)' }}>{f.name}</span>
                         <span style={{ color: 'var(--accent-pink)' }}>$1.000</span>
                       </div>
-                      <p style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{f.description}</p>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', margin: '0 0 2px 0', lineHeight: '1.25' }}>{f.description}</p>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                         {f.filling} • {f.coating} • {f.dough}
                       </div>
                     </div>

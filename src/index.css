@@ -1146,4 +1146,39 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.3rem;
 }
 
+/* Print Menu Item Dot Leader Styles */
+.print-menu-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2px;
+}
+
+.print-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-weight: 700;
+  color: var(--accent-brown);
+  font-size: 0.85rem;
+}
+
+.print-item-dots {
+  flex: 1;
+  border-bottom: 2px dotted rgba(93, 64, 55, 0.35);
+  margin: 0 4px;
+}
+
+.print-item-price {
+  font-family: var(--font-heading);
+  color: var(--accent-pink);
+  font-weight: bold;
+}
+
+.print-item-desc {
+  margin: 1px 0 0 0 !important;
+  font-size: 0.7rem !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.15 !important;
+}
+
 

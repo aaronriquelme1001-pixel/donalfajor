@@ -31,6 +31,10 @@ export default function SocialMediaGenerator() {
   const [imageX, setImageX] = useState(0); // horizontal pan offset (px)
   const [imageY, setImageY] = useState(0); // vertical pan offset (px)
   const [polaroidRotation, setPolaroidRotation] = useState(-2); // -15 to 15 degrees
+  const [photoType, setPhotoType] = useState('slice'); // 'slice' | 'wrapped1' | 'wrapped2'
+  const [frameStyle, setFrameStyle] = useState('polaroid'); // 'polaroid' | 'circle' | 'border' | 'none'
+  const [stickerText, setStickerText] = useState('none'); // 'none' | 'casero' | 'artesanal' | 'hecho_con_amor' | 'receta_casera'
+  const [doodlesEnabled, setDoodlesEnabled] = useState(true);
   const [fontFamily, setFontFamily] = useState('Fredoka');
   const [titleFontSize, setTitleFontSize] = useState(2.2); // rem
   const [taglineFontSize, setTaglineFontSize] = useState(1.6); // rem
@@ -99,6 +103,12 @@ export default function SocialMediaGenerator() {
     setImageY(0);
     setCustomImage(null); // Clear custom upload when flavor changes
   }, [selectedFlavorId, format]);
+
+  const getProductPhoto = () => {
+    if (photoType === 'wrapped1') return '/assets/flavors/wrapped-1.png';
+    if (photoType === 'wrapped2') return '/assets/flavors/wrapped-2.png';
+    return activeFlavor.image;
+  };
 
   // Handle Preset Theme Clicks
   const handleThemeSelect = (selectedTheme) => {
@@ -184,54 +194,193 @@ export default function SocialMediaGenerator() {
               }}
             >
               {/* Crayon background scribbles */}
-              <div className="canvas-bg-decorations">
-                <span style={{ position: 'absolute', top: '25px', right: '25px', fontSize: '2.5rem', opacity: 0.15, transform: 'rotate(10deg)' }}>☁️</span>
-                <span style={{ position: 'absolute', bottom: '80px', left: '20px', fontSize: '2.2rem', opacity: 0.15, transform: 'rotate(-15deg)' }}>⭐️</span>
-                <span style={{ position: 'absolute', top: '40%', right: '15px', fontSize: '2rem', opacity: 0.1, transform: 'rotate(25deg)' }}>☀️</span>
-              </div>
+              {doodlesEnabled && (
+                <div className="canvas-bg-decorations">
+                  <span style={{ position: 'absolute', top: '25px', left: '25px', fontSize: '2rem', opacity: 0.15, transform: 'rotate(-10deg)' }}>☀️</span>
+                  <span style={{ position: 'absolute', top: '25px', right: '25px', fontSize: '2.5rem', opacity: 0.15, transform: 'rotate(10deg)' }}>☁️</span>
+                  <span style={{ position: 'absolute', bottom: '80px', left: '20px', fontSize: '2.2rem', opacity: 0.15, transform: 'rotate(-15deg)' }}>⭐️</span>
+                  <span style={{ position: 'absolute', bottom: '80px', right: '25px', fontSize: '2.2rem', opacity: 0.15, transform: 'rotate(15deg)' }}>🍪</span>
+                  <span style={{ position: 'absolute', top: '45%', left: '15px', fontSize: '1.8rem', opacity: 0.1, transform: 'rotate(-5deg)' }}>❤️</span>
+                </div>
+              )}
 
               {/* Logo Badge in Header */}
               <div className="canvas-logo-container">
-                <div className="canvas-logo-circle" style={{ borderColor: isDarkTheme ? '#FFFDF9' : 'var(--border-pencil)', borderWidth: '3px' }}>
-                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Mascot Logo" />
+                <div className="canvas-logo-wrap">
+                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="canvas-logo" />
                 </div>
                 <div>
-                  <div className="canvas-brand-name" style={{ color: isDarkTheme ? '#FFFDF9' : 'var(--accent-brown)', fontFamily: 'var(--font-heading)' }}>Don Alfajor</div>
+                  <div className="canvas-brand-name" style={{ color: customTextColor }}>Don Alfajor</div>
                   <div className="canvas-brand-sub" style={{ color: customAccentColor, fontFamily: 'var(--font-handwritten)', fontWeight: 'bold' }}>Sabores de Autor ✨</div>
                 </div>
               </div>
 
               {/* Content Area */}
-              <div className="canvas-content-box">
+              <div className="canvas-content-box" style={{ position: 'relative', width: '100%' }}>
                 {displayMode === 'photo' ? (
-                  /* Polaroid Picture Frame */
-                  <div 
-                    className="canvas-polaroid-frame" 
-                    style={{ 
-                      borderColor: 'var(--border-pencil)', 
-                      borderWidth: '4px',
-                      transform: `rotate(${polaroidRotation}deg)`,
-                      transition: 'none'
-                    }}
-                  >
-                    <div className="polaroid-tape"></div>
-                    <div className="canvas-polaroid-img-box" style={{ overflow: 'hidden', position: 'relative' }}>
-                      <img 
-                        src={customImage || `${import.meta.env.BASE_URL.replace(/\/$/, '')}${activeFlavor.image}`} 
-                        alt={activeFlavor.name} 
-                        style={{ 
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          transform: `scale(${imageZoom}) translate(${imageX}px, ${imageY}px)`,
-                          transformOrigin: 'center',
-                          transition: 'none'
+                  <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    {/* Sticker Badge Overlay */}
+                    {stickerText !== 'none' && (
+                      <div 
+                        className="sticker-badge-overlay"
+                        style={{
+                          position: 'absolute',
+                          top: frameStyle === 'circle' ? '5px' : '-10px',
+                          right: frameStyle === 'circle' ? '18%' : '10%',
+                          width: '65px',
+                          height: '65px',
+                          borderRadius: '50%',
+                          border: '2.5px solid var(--border-pencil)',
+                          backgroundColor: '#FFF176', // Yellow sticker
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          fontSize: '0.7rem',
+                          fontWeight: 'bold',
+                          color: '#5D4037',
+                          boxShadow: '3px 3px 0px rgba(93,64,55,0.2)',
+                          transform: 'rotate(15deg)',
+                          zIndex: 10,
+                          padding: '4px',
+                          lineHeight: '1.15'
                         }}
-                      />
-                    </div>
-                    <div className="canvas-polaroid-caption" style={{ fontFamily: 'var(--font-handwritten)', color: 'var(--accent-brown)' }}>
-                      {activeFlavor.emoji} {customTitle}
-                    </div>
+                      >
+                        {stickerText === 'casero' && <span>⭐<br/>Casero</span>}
+                        {stickerText === 'artesanal' && <span>🧸<br/>Artesanal</span>}
+                        {stickerText === 'hecho_con_amor' && <span>❤️<br/>Con Amor</span>}
+                        {stickerText === 'receta_casera' && <span>✨<br/>Receta</span>}
+                      </div>
+                    )}
+
+                    {frameStyle === 'polaroid' && (
+                      /* Polaroid Picture Frame */
+                      <div 
+                        className="canvas-polaroid-frame" 
+                        style={{ 
+                          borderColor: 'var(--border-pencil)', 
+                          borderWidth: '4px',
+                          transform: `rotate(${polaroidRotation}deg)`,
+                          transition: 'none',
+                          position: 'relative'
+                        }}
+                      >
+                        <div className="polaroid-tape"></div>
+                        <div className="canvas-polaroid-img-box" style={{ overflow: 'hidden', position: 'relative' }}>
+                          <img 
+                            src={customImage || `${import.meta.env.BASE_URL.replace(/\/$/, '')}${getProductPhoto()}`} 
+                            alt={activeFlavor.name} 
+                            style={{ 
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              transform: `scale(${imageZoom}) translate(${imageX}px, ${imageY}px)`,
+                              transformOrigin: 'center',
+                              transition: 'none'
+                            }}
+                          />
+                        </div>
+                        <div className="canvas-polaroid-caption" style={{ fontFamily: 'var(--font-handwritten)', color: 'var(--accent-brown)', fontSize: '1.2rem', marginTop: '8px' }}>
+                          {activeFlavor.emoji} {customTitle}
+                        </div>
+                      </div>
+                    )}
+
+                    {frameStyle === 'circle' && (
+                      /* Circular Photo Frame */
+                      <div 
+                        style={{
+                          width: format === 'post' ? '220px' : '280px',
+                          height: format === 'post' ? '220px' : '280px',
+                          borderRadius: '50%',
+                          border: '4px solid var(--border-pencil)',
+                          boxShadow: '5px 5px 0px rgba(93,64,55,0.15)',
+                          backgroundColor: 'white',
+                          padding: '8px',
+                          overflow: 'hidden',
+                          position: 'relative',
+                          transform: `rotate(${polaroidRotation}deg)`,
+                          zIndex: 2
+                        }}
+                      >
+                        <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', position: 'relative' }}>
+                          <img 
+                            src={customImage || `${import.meta.env.BASE_URL.replace(/\/$/, '')}${getProductPhoto()}`} 
+                            alt={activeFlavor.name} 
+                            style={{ 
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              transform: `scale(${imageZoom}) translate(${imageX}px, ${imageY}px)`,
+                              transformOrigin: 'center',
+                              transition: 'none'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {frameStyle === 'border' && (
+                      /* Double pencil border rectangular photo */
+                      <div 
+                        style={{
+                          width: '90%',
+                          height: format === 'post' ? '210px' : '320px',
+                          border: '4px double var(--border-pencil)',
+                          boxShadow: '5px 5px 0px rgba(93,64,55,0.15)',
+                          backgroundColor: 'white',
+                          padding: '6px',
+                          overflow: 'hidden',
+                          position: 'relative',
+                          transform: `rotate(${polaroidRotation}deg)`,
+                          zIndex: 2
+                        }}
+                      >
+                        <div style={{ width: '100%', height: '100%', overflow: 'hidden', position: 'relative' }}>
+                          <img 
+                            src={customImage || `${import.meta.env.BASE_URL.replace(/\/$/, '')}${getProductPhoto()}`} 
+                            alt={activeFlavor.name} 
+                            style={{ 
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              transform: `scale(${imageZoom}) translate(${imageX}px, ${imageY}px)`,
+                              transformOrigin: 'center',
+                              transition: 'none'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {frameStyle === 'none' && (
+                      /* Borderless/full-width crop */
+                      <div 
+                        style={{
+                          width: '100%',
+                          height: format === 'post' ? '220px' : '360px',
+                          boxShadow: '0px 4px 10px rgba(93,64,55,0.1)',
+                          overflow: 'hidden',
+                          position: 'relative',
+                          borderRadius: '12px',
+                          zIndex: 2
+                        }}
+                      >
+                        <img 
+                          src={customImage || `${import.meta.env.BASE_URL.replace(/\/$/, '')}${getProductPhoto()}`} 
+                          alt={activeFlavor.name} 
+                          style={{ 
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transform: `scale(${imageZoom}) translate(${imageX}px, ${imageY}px)`,
+                            transformOrigin: 'center',
+                            transition: 'none'
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   /* Big Logo/Emoji view */
@@ -366,7 +515,23 @@ export default function SocialMediaGenerator() {
           {displayMode === 'photo' && (
             <>
               <div className="control-group">
-                <label>Foto de la Publicación</label>
+                <label>Selección de Foto</label>
+                <select 
+                  value={photoType} 
+                  onChange={(e) => {
+                    setPhotoType(e.target.value);
+                    setCustomImage(null); // Clear custom upload if switching preset photo
+                  }}
+                  style={{ marginBottom: '0.5rem' }}
+                >
+                  <option value="slice">📸 Corte Transversal (Sabor Relleno)</option>
+                  <option value="wrapped1">🍬 Producto Envuelto (Presentación Grupal)</option>
+                  <option value="wrapped2">🍬 Producto Envuelto (Presentación Trío)</option>
+                </select>
+              </div>
+
+              <div className="control-group">
+                <label>Subir Foto Personalizada (Canva)</label>
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -487,6 +652,44 @@ export default function SocialMediaGenerator() {
               <option value="post">Post Cuadrado (Instagram 1:1)</option>
               <option value="story">Historia Vertical (Story 9:16)</option>
             </select>
+          </div>
+
+          <div className="control-group">
+            <label>Estilo de Marco de Foto</label>
+            <select 
+              value={frameStyle} 
+              onChange={(e) => setFrameStyle(e.target.value)}
+            >
+              <option value="polaroid">🖼️ Polaroid Clásica</option>
+              <option value="circle">💮 Pegatina Circular (Sticker)</option>
+              <option value="border">✍️ Marco Lápiz Doble</option>
+              <option value="none">✨ Sin Marco / Minimalista</option>
+            </select>
+          </div>
+
+          <div className="control-group">
+            <label>Pegatina Decorativa (Sticker)</label>
+            <select 
+              value={stickerText} 
+              onChange={(e) => setStickerText(e.target.value)}
+            >
+              <option value="none">🚫 Ninguna</option>
+              <option value="casero">⭐ Casero</option>
+              <option value="artesanal">🧸 100% Artesanal</option>
+              <option value="hecho_con_amor">❤️ Con Amor</option>
+              <option value="receta_casera">✨ Receta Casera</option>
+            </select>
+          </div>
+
+          <div className="control-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexDirection: 'row', marginTop: '0.5rem' }}>
+            <input 
+              type="checkbox" 
+              id="doodles-toggle" 
+              checked={doodlesEnabled} 
+              onChange={(e) => setDoodlesEnabled(e.target.checked)} 
+              style={{ width: 'auto', margin: 0, cursor: 'pointer' }}
+            />
+            <label htmlFor="doodles-toggle" style={{ margin: 0, cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}>🎨 Activar Dibujitos de Fondo</label>
           </div>
 
           <div className="control-group">

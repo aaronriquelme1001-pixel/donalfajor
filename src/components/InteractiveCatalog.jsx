@@ -136,6 +136,48 @@ export default function InteractiveCatalog() {
         </div>
       </div>
 
+      {/* Wrapped Packaging Presentation Section */}
+      <div className="wrapped-presentation-section no-print" style={{
+        backgroundColor: '#FFFBF7',
+        border: '3px dashed var(--border-pencil)',
+        borderRadius: '16px',
+        padding: '1.25rem',
+        marginBottom: '2rem',
+        boxShadow: '4px 4px 0px rgba(93,64,55,0.15)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--accent-brown)', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            🍬 Presentación y Envolturas Especiales
+          </h3>
+          <span style={{ fontSize: '0.85rem', color: 'var(--accent-pink)', fontWeight: 'bold', fontFamily: 'var(--font-handwritten)' }}>
+            ¡Hechos con cariño! ✨
+          </span>
+        </div>
+        <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+          Cada alfajor Don Alfajor se entrega envuelto en papel colorido de alta calidad y sellado con un adhesivo circular ilustrado a mano con el logo oficial, que detalla el sabor y nuestro WhatsApp. ¡Perfecto para regalar o regalarse!
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="polaroid-frame" style={{ margin: 0, padding: '8px 8px 16px' }}>
+            <div className="polaroid-image-wrapper" style={{ height: '140px' }}>
+              <img src={`${import.meta.env.BASE_URL}assets/flavors/wrapped-1.png`} alt="Envoltura Grupal" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+            </div>
+            <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px', fontFamily: 'var(--font-handwritten)' }}>
+              🌈 Variedad de colores y sabores
+            </div>
+          </div>
+          <div className="polaroid-frame" style={{ margin: 0, padding: '8px 8px 16px' }}>
+            <div className="polaroid-image-wrapper" style={{ height: '140px' }}>
+              <img src={`${import.meta.env.BASE_URL}assets/flavors/wrapped-2.png`} alt="Trío de Envolturas" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+            </div>
+            <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px', fontFamily: 'var(--font-handwritten)' }}>
+              🧸 Stickers estilo infantil y tiernos
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Flavors Grid */}
       <div className="flavors-grid">
         {filteredFlavors.length > 0 ? (
