@@ -66,7 +66,7 @@ export default function PrintableMenus() {
             {/* Header */}
             <div className="print-header">
               <div className="print-logo" style={{ borderRadius: '50%' }}>
-                <img src="/logo.png" alt="Don Alfajor Logo" />
+                <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Logo" />
               </div>
               <h2 className="print-title">Don Alfajor</h2>
               <span className="print-subtitle">Menú de Sabores Artesanales de Autor ✨</span>
@@ -156,7 +156,7 @@ export default function PrintableMenus() {
               
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius: '50%' }}>
-                  <img src="/logo.png" alt="Don Alfajor Logo" />
+                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Logo" />
                 </div>
                 <h2 className="print-title">Don Alfajor</h2>
                 <span className="print-subtitle" style={{ color: 'var(--accent-pink)' }}>Línea Clásicos y Dulces 🧸</span>
@@ -171,7 +171,7 @@ export default function PrintableMenus() {
                     <div style={{ width: '140px', flexShrink: 0 }}>
                       <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}>
                         <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
-                          <img src={f.image} alt={f.name} />
+                          <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
                         <div className="polaroid-caption" style={{ fontSize: '1rem', marginTop: '6px' }}>{f.emoji} {f.name}</div>
                       </div>
@@ -204,7 +204,7 @@ export default function PrintableMenus() {
               
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius: '50%' }}>
-                  <img src="/logo.png" alt="Don Alfajor Logo" />
+                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Logo" />
                 </div>
                 <h2 className="print-title">Don Alfajor</h2>
                 <span className="print-subtitle" style={{ color: 'var(--accent-blue)' }}>Línea Frutales y Exóticos 🍋</span>
@@ -218,7 +218,7 @@ export default function PrintableMenus() {
                     <div style={{ width: '140px', flexShrink: 0 }}>
                       <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)` }}>
                         <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
-                          <img src={f.image} alt={f.name} />
+                          <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
                         <div className="polaroid-caption" style={{ fontSize: '1rem', marginTop: '6px' }}>{f.emoji} {f.name}</div>
                       </div>
@@ -251,7 +251,7 @@ export default function PrintableMenus() {
               
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius: '50%' }}>
-                  <img src="/logo.png" alt="Don Alfajor Logo" />
+                  <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Logo" />
                 </div>
                 <h2 className="print-title">Don Alfajor</h2>
                 <span className="print-subtitle" style={{ color: 'var(--accent-yellow)' }}>Línea Gourmet Premium 🍷</span>
@@ -265,7 +265,7 @@ export default function PrintableMenus() {
                     <div style={{ width: '140px', flexShrink: 0 }}>
                       <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}>
                         <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
-                          <img src={f.image} alt={f.name} />
+                          <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
                         <div className="polaroid-caption" style={{ fontSize: '1rem', marginTop: '6px' }}>{f.emoji} {f.name}</div>
                       </div>
@@ -300,7 +300,7 @@ export default function PrintableMenus() {
             <span className="handdrawn-decor-sun" style={{ top: '30px', right: '30px', fontSize: '3rem' }}>☀️</span>
             
             <div className="print-logo" style={{ width: '150px', height: '150px', borderRadius: '50%', borderWidth: '4px' }}>
-              <img src="/logo.png" alt="Don Alfajor Logo" />
+              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Logo" />
             </div>
 
             <div style={{ margin: '1rem 0' }}>

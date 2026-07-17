@@ -44,7 +44,7 @@ export default function StickerSheet() {
                   {/* Mascot image - circular crop */}
                   <img 
                     className="sticker-logo-img" 
-                    src="/logo.png" 
+                    src={`${import.meta.env.BASE_URL}logo.png`} 
                     alt="Don Alfajor Mascot Logo" 
                   />
 

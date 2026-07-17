@@ -152,7 +152,7 @@ export default function InteractiveCatalog() {
               <div className="polaroid-frame">
                 <div className="polaroid-tape"></div>
                 <div className="polaroid-image-wrapper">
-                  <img src={flavor.image} alt={flavor.name} />
+                  <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${flavor.image}`} alt={flavor.name} />
                 </div>
                 <div className="polaroid-caption">
                   {flavor.emoji} {flavor.name}

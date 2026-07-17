@@ -13,7 +13,7 @@ export default function App() {
       <aside className="app-sidebar no-print">
         <div className="brand-section">
           <div className="brand-logo-container">
-            <img src="/logo.png" alt="Don Alfajor Mascot Logo" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Mascot Logo" />
           </div>
           <h2 className="brand-name">Don Alfajor</h2>
           <span className="brand-subtitle">Sabores de Autor 🎨</span>
