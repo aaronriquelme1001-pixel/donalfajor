@@ -1,0 +1,1031 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Gaegu:wght@400;700&family=Caveat:wght@400..700&display=swap');
+
+:root {
+  /* Cute Hand-drawn Crayon Palette */
+  --bg-brand: #FDFBF7;         /* Crema cálido papel */
+  --bg-card: #FFFFFF;
+  --text-primary: #5D4037;     /* Crayon marrón */
+  --text-secondary: #8D6E63;   /* Dulce de leche */
+  --text-muted: #A1887F;
+  --accent-pink: #F3C6C6;      /* Rosa del logo */
+  --accent-blue: #9BD1D6;      /* Celeste de la nube */
+  --accent-yellow: #FFF176;    /* Amarillo del sol */
+  --accent-brown: #4E342E;     /* Borde lápiz */
+  --border-pencil: #5D4037;    /* Borde dibujado a mano */
+  --success-green: #A5D6A7;
+  
+  /* Fonts */
+  --font-heading: 'Fredoka', system-ui, sans-serif;
+  --font-handwritten: 'Gaegu', 'Caveat', cursive; /* Para notas tiernas */
+  --font-body: 'Fredoka', system-ui, sans-serif; /* Mantenemos todo redondo y tierno */
+  
+  /* Hand-drawn irregular border radii */
+  --radius-hand-1: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-hand-2: 20px 300px 30px 250px / 250px 30px 220px 20px;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 30px;
+  --radius-full: 9999px;
+  
+  /* Crayon Shadows (Flat offsets instead of blur) */
+  --shadow-flat: 4px 4px 0px var(--border-pencil);
+  --shadow-flat-pink: 6px 6px 0px var(--accent-pink);
+  --shadow-flat-blue: 6px 6px 0px var(--accent-blue);
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--bg-brand);
+  min-height: 100vh;
+  line-height: 1.5;
+  background-image: radial-gradient(rgba(93, 64, 55, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--accent-brown);
+}
+
+.handwritten {
+  font-family: var(--font-handwritten);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Sidebar Layout */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  width: 290px;
+  background-color: var(--bg-card);
+  border-right: 4px solid var(--border-pencil);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.brand-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Logo Badge style - perfectly centered and circular */
+.brand-logo-container {
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius-full);
+  background-color: white;
+  border: 4px solid var(--border-pencil);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-flat);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.brand-logo-container:hover {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+.brand-logo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-name {
+  font-size: 2rem;
+  font-family: var(--font-heading);
+  color: var(--accent-brown);
+  margin-top: 0.2rem;
+}
+
+.brand-subtitle {
+  font-family: var(--font-handwritten);
+  font-size: 1.4rem;
+  color: var(--text-secondary);
+}
+
+/* Nav items */
+.nav-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.nav-item button {
+  width: 100%;
+  background: none;
+  border: 3px solid transparent;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: var(--transition-smooth);
+}
+
+.nav-item button:hover {
+  border-color: var(--border-pencil);
+  background-color: var(--accent-pink);
+  transform: translateY(-2px);
+}
+
+.nav-item.active button {
+  background-color: var(--accent-yellow);
+  border-color: var(--border-pencil);
+  box-shadow: 3px 3px 0px var(--border-pencil);
+  transform: translateY(-2px);
+}
+
+.nav-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 3px dashed var(--border-pencil);
+  font-family: var(--font-handwritten);
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.nav-footer-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #E8F5E9;
+  border: 2px solid var(--border-pencil);
+  padding: 0.3rem 1rem;
+  border-radius: var(--radius-full);
+  margin-top: 0.4rem;
+  font-size: 1.3rem;
+  color: #1B5E20;
+}
+
+/* Main Content */
+.app-content {
+  flex: 1;
+  margin-left: 290px;
+  padding: 3rem;
+  max-width: 1200px;
+}
+
+.content-header {
+  margin-bottom: 2.5rem;
+  background-color: white;
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-hand-1);
+  padding: 2rem;
+  box-shadow: var(--shadow-flat-pink);
+  position: relative;
+}
+
+.content-title {
+  font-size: 2.8rem;
+  color: var(--accent-brown);
+  margin-bottom: 0.5rem;
+}
+
+.content-description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+/* Handdrawn Button */
+.btn-primary {
+  background-color: var(--accent-pink);
+  color: var(--accent-brown);
+  border: 3px solid var(--border-pencil);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--border-pencil);
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-yellow);
+  transform: translateY(-2px) rotate(-1deg);
+  box-shadow: 5px 5px 0px var(--border-pencil);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 3px solid var(--border-pencil);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--border-pencil);
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent-blue);
+  transform: translateY(-2px) rotate(1deg);
+  box-shadow: 5px 5px 0px var(--border-pencil);
+}
+
+/* ---------------------------------------------------- */
+/* Polaroid Product Photo Frame (Very cute)             */
+/* ---------------------------------------------------- */
+.polaroid-frame {
+  background-color: white;
+  padding: 12px 12px 24px;
+  border: 3px solid var(--border-pencil);
+  box-shadow: 4px 4px 0px rgba(93, 64, 55, 0.15);
+  display: inline-block;
+  transform: rotate(-2deg);
+  transition: var(--transition-smooth);
+  position: relative;
+  width: 100%;
+}
+
+.flavor-card:hover .polaroid-frame {
+  transform: rotate(2deg) scale(1.02);
+  box-shadow: 6px 6px 0px rgba(93, 64, 55, 0.25);
+}
+
+.polaroid-tape {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+  width: 90px;
+  height: 25px;
+  background-color: rgba(181, 214, 214, 0.6); /* Semi-transparent blue tape */
+  border: 1px dashed rgba(93, 64, 55, 0.3);
+  z-index: 10;
+}
+
+.polaroid-image-wrapper {
+  width: 100%;
+  height: 180px;
+  border: 2px solid var(--border-pencil);
+  overflow: hidden;
+  background-color: var(--bg-brand);
+}
+
+.polaroid-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.polaroid-caption {
+  font-family: var(--font-handwritten);
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--accent-brown);
+  margin-top: 12px;
+  line-height: 1;
+}
+
+/* Catalog Card Override */
+.flavor-card {
+  background-color: var(--bg-card);
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-flat-pink);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  transition: var(--transition-smooth);
+}
+
+.flavor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 6px 6px 0px var(--border-pencil);
+}
+
+.flavor-card-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flavor-card-price-badge {
+  background-color: var(--accent-yellow);
+  border: 2px solid var(--border-pencil);
+  padding: 0.2rem 0.8rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.25rem;
+  border-radius: var(--radius-full);
+}
+
+.flavor-card-category-tag {
+  font-family: var(--font-handwritten);
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+}
+
+.flavor-card-desc-text {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.flavor-card-list-details {
+  border-top: 2px dashed var(--border-pencil);
+  padding-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.flavor-card-list-details strong {
+  color: var(--accent-brown);
+}
+
+/* Category Filters Hand-drawn */
+.catalog-filters {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-btn {
+  background-color: white;
+  border: 3px solid var(--border-pencil);
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-hand-2);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.filter-btn:hover {
+  background-color: var(--accent-pink);
+  transform: rotate(-1deg);
+}
+
+.filter-btn.active {
+  background-color: var(--accent-yellow);
+  box-shadow: 3px 3px 0 var(--border-pencil);
+  transform: scale(1.05);
+}
+
+/* Floating checkout basket */
+.order-cart-panel {
+  border: 4px solid var(--border-pencil) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-flat) !important;
+}
+
+.order-cart-close:hover {
+  color: var(--accent-pink);
+}
+
+/* Social Media Generator Canvas View */
+.canvas-wrapper {
+  border: 4px solid var(--border-pencil) !important;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-flat) !important;
+  background-color: var(--bg-brand);
+}
+
+/* Crayon polaroid frame inside preview */
+.canvas-polaroid-frame {
+  background-color: white;
+  padding: 20px 20px 40px;
+  border: 4px solid var(--border-pencil);
+  box-shadow: 6px 6px 0px rgba(0,0,0,0.06);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 2rem;
+  transform: rotate(-1deg);
+}
+
+.instagram-story .canvas-polaroid-frame {
+  max-width: 440px;
+}
+
+.canvas-polaroid-img-box {
+  width: 100%;
+  height: 240px;
+  border: 3px solid var(--border-pencil);
+  overflow: hidden;
+}
+
+.instagram-story .canvas-polaroid-img-box {
+  height: 300px;
+}
+
+.canvas-polaroid-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canvas-polaroid-caption {
+  font-family: var(--font-handwritten);
+  font-size: 2.2rem;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.canvas-brand-name {
+  font-size: 1.8rem !important;
+}
+
+.canvas-brand-sub {
+  font-family: var(--font-handwritten) !important;
+  font-size: 1.2rem !important;
+  text-transform: none !important;
+}
+
+.canvas-price-tag {
+  font-size: 2rem !important;
+  border: 3px solid var(--border-pencil) !important;
+  box-shadow: 4px 4px 0 var(--border-pencil) !important;
+}
+
+/* A4 Print pages style */
+.print-page-a4 {
+  border: 4px solid var(--border-pencil) !important;
+  border-radius: var(--radius-lg);
+  background-color: white;
+  position: relative;
+  background-image: radial-gradient(rgba(93, 64, 55, 0.02) 1px, transparent 1px);
+  background-size: 15px 15px;
+}
+
+.print-page-a4::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 2px dashed rgba(93, 64, 55, 0.15);
+  pointer-events: none;
+  border-radius: var(--radius-md);
+}
+
+.print-header {
+  border-bottom: 4px dashed var(--border-pencil) !important;
+}
+
+.print-logo {
+  border: 3px solid var(--border-pencil) !important;
+  box-shadow: 3px 3px 0 var(--border-pencil) !important;
+}
+
+.print-title {
+  font-size: 2.6rem !important;
+}
+
+.print-subtitle {
+  font-family: var(--font-handwritten) !important;
+  font-size: 1.5rem !important;
+  text-transform: none !important;
+}
+
+.print-category-title {
+  font-family: var(--font-heading) !important;
+  color: var(--accent-brown) !important;
+  font-size: 1.6rem !important;
+  border-bottom: 3px dashed var(--border-pencil) !important;
+}
+
+.print-footer-banner {
+  border: 3px solid var(--border-pencil) !important;
+  background-color: var(--accent-pink) !important;
+  color: var(--accent-brown) !important;
+  box-shadow: 4px 4px 0 var(--border-pencil) !important;
+}
+
+.print-footer-banner h3 {
+  color: var(--accent-brown) !important;
+}
+
+.print-contacts-footer {
+  font-family: var(--font-handwritten) !important;
+  font-size: 1.25rem !important;
+}
+
+/* Circular packaging labels */
+.sticker-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px 15px;
+  justify-items: center;
+  align-items: center;
+  padding: 10px 0;
+  width: 100%;
+}
+
+.circular-sticker {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px dashed var(--border-pencil) !important;
+  padding: 4px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.sticker-border-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid var(--border-pencil) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 8px;
+  position: relative;
+  background-color: white;
+}
+
+.sticker-decor {
+  font-family: var(--font-handwritten);
+  font-size: 0.8rem !important;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+.sticker-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem !important;
+  font-weight: bold;
+  color: var(--accent-brown);
+  margin: 2px 0 0;
+  line-height: 1;
+}
+
+.sticker-whatsapp {
+  font-family: var(--font-heading);
+  font-size: 0.7rem !important;
+  background-color: #E8F5E9;
+  border: 1.5px solid var(--border-pencil);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  color: #1B5E20;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.sticker-logo-img {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-pencil);
+  object-fit: cover;
+  margin: 3px 0 1px;
+}
+
+/* Interactive custom switch label */
+.custom-toggle-btn {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--bg-brand);
+  border: 2px solid var(--border-pencil);
+  border-radius: var(--radius-full);
+  padding: 0.2rem;
+  align-self: center;
+}
+
+.custom-toggle-option {
+  border: none;
+  background: none;
+  padding: 0.25rem 0.8rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.custom-toggle-option.active {
+  background-color: var(--accent-yellow);
+  box-shadow: 1px 1px 0 var(--border-pencil);
+}
+
+/* CSS Decorative Handdrawn Icons */
+.handdrawn-decor-sun {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 2rem;
+  animation: spin 20s linear infinite;
+}
+
+.handdrawn-decor-heart {
+  position: absolute;
+  bottom: 15px;
+  right: 25px;
+  font-size: 1.5rem;
+  color: #F48FB1;
+  transform: rotate(15deg);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media print {
+  .print-page-a4 {
+    border: none !important;
+    background-image: none !important;
+  }
+  .print-page-a4::after {
+    border: 1.5px dashed rgba(93, 64, 55, 0.25) !important;
+  }
+}
+
+/* Catalog Card Footer & Quantity Selector Styling */
+.flavor-card-footer {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  margin-top: auto; /* Aligns footer at the bottom of all cards */
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: white;
+  height: 42px;
+}
+
+.quantity-btn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 100%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-btn:hover {
+  background-color: var(--accent-pink);
+}
+
+.quantity-value {
+  width: 30px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--accent-brown);
+}
+
+.btn-card-add {
+  flex: 1;
+  background-color: var(--accent-pink);
+  color: var(--accent-brown);
+  border: 3px solid var(--border-pencil);
+  height: 42px;
+  padding: 0 1.2rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--border-pencil);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-card-add:hover {
+  background-color: var(--accent-yellow);
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0px var(--border-pencil);
+}
+
+/* Social Media Generator Layout */
+.generator-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .generator-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.generator-preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.generator-control-panel {
+  width: 380px;
+  background: white;
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-flat);
+}
+
+@media (max-width: 900px) {
+  .generator-control-panel {
+    width: 100%;
+  }
+}
+
+.control-section-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--accent-brown);
+  margin-bottom: 1.25rem;
+  border-bottom: 3px dashed var(--border-pencil);
+  padding-bottom: 0.5rem;
+}
+
+.control-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-group select,
+.control-group input[type="text"],
+.control-group textarea {
+  width: 100%;
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--bg-brand);
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.control-group select:focus,
+.control-group input[type="text"]:focus,
+.control-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-pink);
+  background-color: white;
+}
+
+.color-presets-grid {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.color-preset-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--border-pencil);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.color-preset-btn:hover,
+.color-preset-btn.active {
+  transform: scale(1.15) rotate(-5deg);
+  box-shadow: 2px 2px 0 var(--border-pencil);
+}
+
+/* Canvas Preview Layouts */
+.canvas-wrapper {
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: var(--bg-brand);
+  position: relative;
+}
+
+.canvas-wrapper.instagram-post {
+  width: 450px;
+  height: 450px;
+}
+
+.canvas-wrapper.instagram-story {
+  width: 360px;
+  height: 640px;
+}
+
+.canvas-template {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.canvas-bg-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.canvas-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 5;
+}
+
+.canvas-logo-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid var(--border-pencil);
+  overflow: hidden;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-logo-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canvas-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: auto 0;
+  z-index: 5;
+  width: 100%;
+}
+
+.instagram-post .canvas-polaroid-frame {
+  max-width: 250px;
+  padding: 8px 8px 16px;
+  border-width: 3px;
+}
+
+.instagram-post .canvas-polaroid-img-box {
+  height: 140px;
+  border-width: 2px;
+}
+
+.instagram-post .canvas-polaroid-caption {
+  font-size: 1.3rem;
+  margin-top: 8px;
+}
+
+.instagram-story .canvas-polaroid-frame {
+  max-width: 260px;
+  padding: 8px 8px 18px;
+  border-width: 3px;
+}
+
+.instagram-story .canvas-polaroid-img-box {
+  height: 170px;
+  border-width: 2px;
+}
+
+.instagram-story .canvas-polaroid-caption {
+  font-size: 1.4rem;
+  margin-top: 8px;
+}
+
+.canvas-flavor-tagline {
+  text-align: center;
+}
+
+.instagram-post .canvas-flavor-tagline {
+  font-size: 1.15rem !important;
+  margin: 0.4rem 0 0.8rem !important;
+}
+
+.instagram-story .canvas-flavor-tagline {
+  font-size: 1.3rem !important;
+  margin: 0.6rem 0 1rem !important;
+}
+
+.canvas-price-tag {
+  display: inline-block;
+  padding: 0.3rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+}
+
+.instagram-post .canvas-price-tag {
+  font-size: 1.1rem !important;
+  padding: 0.3rem 1.2rem !important;
+}
+
+.instagram-story .canvas-price-tag {
+  font-size: 1.3rem !important;
+  padding: 0.4rem 1.6rem !important;
+}
+
+.canvas-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px dashed rgba(93, 64, 55, 0.2);
+  padding-top: 0.6rem;
+  font-size: 0.85rem;
+  z-index: 5;
+}
+
+.instagram-post .canvas-footer {
+  font-size: 0.95rem !important;
+}
+
+.instagram-story .canvas-footer {
+  font-size: 1.1rem !important;
+}
+
+.canvas-footer-tel {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+
