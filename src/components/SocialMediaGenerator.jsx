@@ -281,7 +281,7 @@ export default function SocialMediaGenerator() {
                             }}
                           />
                         </div>
-                        <div className="canvas-polaroid-caption" style={{ fontFamily: 'var(--font-handwritten)', color: 'var(--accent-brown)', fontSize: '1.2rem', marginTop: '8px' }}>
+                        <div className="canvas-polaroid-caption" style={{ fontFamily: 'var(--font-handwritten)', color: 'var(--accent-brown)', fontSize: `${titleFontSize * 0.55}rem`, marginTop: '8px' }}>
                           {activeFlavor.emoji} {customTitle}
                         </div>
                       </div>
@@ -414,6 +414,23 @@ export default function SocialMediaGenerator() {
                 )}
                 
                 {/* Text boxes */}
+                {displayMode === 'photo' && frameStyle !== 'polaroid' && customTitle && (
+                  <h2 
+                    className="canvas-flavor-title" 
+                    style={{ 
+                      color: customTextColor, 
+                      fontFamily: selectedFont.family, 
+                      fontSize: `${titleFontSize}rem`, 
+                      fontWeight: 'bold',
+                      margin: '0.2rem 0',
+                      textAlign: 'center',
+                      lineHeight: '1.2'
+                    }}
+                  >
+                    {customTitle}
+                  </h2>
+                )}
+
                 {customTagline && (
                   <p 
                     className="canvas-flavor-tagline" 
