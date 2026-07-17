@@ -169,7 +169,7 @@ export default function PrintableMenus() {
                     
                     {/* Small Polaroid */}
                     <div style={{ width: '140px', flexShrink: 0 }}>
-                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}>
+                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`, width: '100%' }}>
                         <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
                           <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
@@ -216,7 +216,7 @@ export default function PrintableMenus() {
                     
                     {/* Small Polaroid */}
                     <div style={{ width: '140px', flexShrink: 0 }}>
-                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)` }}>
+                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? 2 : -2}deg)`, width: '100%' }}>
                         <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
                           <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
@@ -263,7 +263,7 @@ export default function PrintableMenus() {
                     
                     {/* Small Polaroid */}
                     <div style={{ width: '140px', flexShrink: 0 }}>
-                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)` }}>
+                      <div className="polaroid-frame" style={{ padding: '8px 8px 16px', transform: `rotate(${i % 2 === 0 ? -2 : 2}deg)`, width: '100%' }}>
                         <div className="polaroid-image-wrapper" style={{ height: '90px' }}>
                           <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${f.image}`} alt={f.name} />
                         </div>
@@ -296,10 +296,10 @@ export default function PrintableMenus() {
 
         {/* LAYOUT 3: PROMO POSTER */}
         {activeLayout === 'promo-poster' && (
-          <div className="print-page-a4" style={{ padding: '60px', justifyContent: 'space-between', alignItems: 'center', textAlign: 'center' }}>
+          <div className="print-page-a4" style={{ padding: '45px 60px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', textAlign: 'center' }}>
             <span className="handdrawn-decor-sun" style={{ top: '30px', right: '30px', fontSize: '3rem' }}>☀️</span>
             
-            <div className="print-logo" style={{ width: '150px', height: '150px', borderRadius: '50%', borderWidth: '4px' }}>
+            <div className="print-logo" style={{ width: '150px', height: '150px', borderRadius: '50%', borderWidth: '4px', margin: '0 auto' }}>
               <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Don Alfajor Logo" />
             </div>
 

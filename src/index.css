@@ -492,13 +492,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* A4 Print pages style */
+.print-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: 20px;
+  background-color: #ECEFF1;
+  border-radius: var(--radius-lg);
+  border: 3px solid var(--border-pencil);
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 .print-page-a4 {
+  width: 210mm;
+  height: 297mm; /* Fixed height for A4 */
+  padding: 35px 45px;
+  margin: 0 auto;
   border: 4px solid var(--border-pencil) !important;
   border-radius: var(--radius-lg);
   background-color: white;
   position: relative;
+  box-sizing: border-box;
   background-image: radial-gradient(rgba(93, 64, 55, 0.02) 1px, transparent 1px);
   background-size: 15px 15px;
+  box-shadow: 0 10px 25px rgba(93, 64, 55, 0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Keeps footer at the bottom! */
+  overflow: hidden;
 }
 
 .print-page-a4::after {
@@ -511,32 +534,82 @@ h1, h2, h3, h4, h5, h6 {
   border: 2px dashed rgba(93, 64, 55, 0.15);
   pointer-events: none;
   border-radius: var(--radius-md);
+  z-index: 1;
 }
 
 .print-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 0.8rem;
+  margin-bottom: 1rem;
   border-bottom: 4px dashed var(--border-pencil) !important;
+  gap: 0.4rem;
+  z-index: 2;
 }
 
 .print-logo {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
   border: 3px solid var(--border-pencil) !important;
   box-shadow: 3px 3px 0 var(--border-pencil) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: white !important;
+  flex-shrink: 0;
+  margin: 0 auto 0.2rem auto;
+}
+
+.print-logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
 }
 
 .print-title {
-  font-size: 2.6rem !important;
+  font-family: var(--font-heading) !important;
+  color: var(--accent-brown) !important;
+  font-size: 2.2rem !important;
+  margin: 0 !important;
+  line-height: 1.1 !important;
 }
 
 .print-subtitle {
   font-family: var(--font-handwritten) !important;
-  font-size: 1.5rem !important;
+  font-size: 1.25rem !important;
+  color: var(--text-secondary) !important;
   text-transform: none !important;
+  margin: 0 !important;
+}
+
+.print-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.8rem;
+  z-index: 2;
+  overflow: hidden;
 }
 
 .print-category-title {
   font-family: var(--font-heading) !important;
   color: var(--accent-brown) !important;
-  font-size: 1.6rem !important;
+  font-size: 1.35rem !important;
+  margin: 0 0 0.4rem 0 !important;
   border-bottom: 3px dashed var(--border-pencil) !important;
+  padding-bottom: 2px !important;
+}
+
+.print-menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1.2rem;
 }
 
 .print-footer-banner {
@@ -544,15 +617,35 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--accent-pink) !important;
   color: var(--accent-brown) !important;
   box-shadow: 4px 4px 0 var(--border-pencil) !important;
+  padding: 0.6rem !important;
+  border-radius: var(--radius-md) !important;
+  text-align: center !important;
+  margin-top: auto !important;
+  z-index: 2;
 }
 
 .print-footer-banner h3 {
   color: var(--accent-brown) !important;
+  margin: 0 0 0.1rem 0 !important;
+  font-family: var(--font-heading) !important;
+  font-size: 1.2rem !important;
+}
+
+.print-footer-banner p {
+  margin: 0 !important;
 }
 
 .print-contacts-footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   font-family: var(--font-handwritten) !important;
-  font-size: 1.25rem !important;
+  font-size: 1.1rem !important;
+  color: var(--text-secondary) !important;
+  border-top: 2px dashed var(--border-pencil);
+  padding-top: 0.4rem;
+  margin-top: 0.6rem;
+  z-index: 2;
 }
 
 /* Circular packaging labels */
@@ -683,9 +776,33 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media print {
-  .print-page-a4 {
+  body {
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .app-sidebar, .no-print, button {
+    display: none !important;
+  }
+  .print-preview-container {
+    background: none !important;
+    padding: 0 !important;
     border: none !important;
-    background-image: none !important;
+    gap: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+  .print-page-a4 {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .print-page-a4::after {
     border: 1.5px dashed rgba(93, 64, 55, 0.25) !important;
