@@ -1,4 +1,5 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { flavors } from '../data/flavors';
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
@@ -35,9 +36,11 @@ function ET({ children, style, tag: Tag = 'span', editMode, className }) {
   );
 }
 
-// Editable image component - shows gallery picker in edit mode
+// Editable image component - shows gallery picker in edit mode (uses portal to escape overflow:hidden)
 function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
   const [open, setOpen] = useState(false);
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
+  const overlayRef = useRef(null);
   const fileRef = useRef(null);
   const [curSrc, setCurSrc] = useState(src);
 
@@ -47,7 +50,27 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
     setOpen(false);
   };
 
-  const allGallery = [...GALLERY, ...customGallery];
+  const handleOverlayClick = (e) => {
+    e.stopPropagation();
+    if (overlayRef.current) {
+      const rect = overlayRef.current.getBoundingClientRect();
+      setPopupPos({
+        top: rect.bottom + window.scrollY + 6,
+        left: Math.min(rect.left + window.scrollX, window.innerWidth - 230),
+      });
+    }
+    setOpen(v => !v);
+  };
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const timer = setTimeout(() => document.addEventListener('pointerdown', close), 50);
+    return () => { clearTimeout(timer); document.removeEventListener('pointerdown', close); };
+  }, [open]);
+
+  const allGallery = [...GALLERY, ...(customGallery || [])];
 
   return (
     <div style={{ position: 'relative', display: 'inline-block', width: '100%', height: '100%' }}>
@@ -59,35 +82,55 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
       />
       {editMode && (
         <div
-          onClick={() => setOpen(!open)}
+          ref={overlayRef}
+          onClick={handleOverlayClick}
           style={{
             position: 'absolute', inset: 0,
-            background: 'rgba(33,150,243,0.18)',
+            background: 'rgba(33,150,243,0.22)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', borderRadius: 6,
             border: '2px dashed #2196F3',
-            fontSize: '0.7rem', fontWeight: 'bold', color: '#1565C0',
+            fontSize: '0.72rem', fontWeight: 'bold', color: '#1565C0',
             textAlign: 'center',
           }}
         >
           📷 Cambiar
         </div>
       )}
-      {editMode && open && (
-        <div style={{
-          position: 'absolute', top: '110%', left: 0, zIndex: 1000,
-          background: 'white', border: '2px solid #2196F3', borderRadius: 10,
-          padding: '0.5rem', display: 'grid', gridTemplateColumns: 'repeat(3, 52px)',
-          gap: '0.3rem', boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
-          maxHeight: '220px', overflowY: 'auto', width: '200px',
-        }}>
+      {open && ReactDOM.createPortal(
+        <div
+          onPointerDown={(e) => e.stopPropagation()}
+          style={{
+            position: 'absolute',
+            top: popupPos.top,
+            left: popupPos.left,
+            zIndex: 99999,
+            background: 'white',
+            border: '2px solid #2196F3',
+            borderRadius: 12,
+            padding: '0.6rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 58px)',
+            gap: '0.35rem',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.22)',
+            maxHeight: '260px',
+            overflowY: 'auto',
+            width: '220px',
+          }}
+        >
           {allGallery.map(img => {
             const thumb = img.isCustom ? img.src : BASE + img.src;
             return (
               <div key={img.id}
                 onClick={() => select(img.isCustom ? img.src : img.src)}
                 title={img.label}
-                style={{ width: 52, height: 52, borderRadius: 6, overflow: 'hidden', cursor: 'pointer', border: '2px solid transparent' }}
+                style={{
+                  width: 58, height: 58, borderRadius: 8, overflow: 'hidden',
+                  cursor: 'pointer', border: '2px solid transparent',
+                  transition: 'border-color 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#2196F3'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}
               >
                 <img src={thumb} alt={img.label}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -95,15 +138,17 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
               </div>
             );
           })}
-          <div
-            onClick={() => fileRef.current?.click()}
+          <div onClick={() => fileRef.current?.click()}
             style={{
-              width: 52, height: 52, borderRadius: 6, border: '2px dashed #2196F3',
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', cursor: 'pointer', fontSize: '0.6rem', color: '#2196F3',
+              width: 58, height: 58, borderRadius: 8,
+              border: '2px dashed #2196F3',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', fontSize: '0.6rem', color: '#2196F3',
+              background: '#f0f8ff',
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>+</span>
+            <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>+</span>
             <span>Subir</span>
           </div>
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
@@ -115,11 +160,13 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
               reader.readAsDataURL(f);
               e.target.value = '';
             }} />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
 }
+
 
 export default function PrintableMenus() {
   const [activeLayout, setActiveLayout] = useState('full-menu');
