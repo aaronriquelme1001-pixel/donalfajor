@@ -83,7 +83,7 @@ export const flavors = [
   {
     id: 'coco',
     name: 'Coco',
-    category: 'classics',
+    category: 'fruit',
     description: 'El aroma del trópico: un aromático relleno de coco rallado con aro de manjar artesanal, bañado en cobertura de chocolate blanco o negro.',
     price: 1000,
     filling: 'Relleno de coco con aro de manjar',

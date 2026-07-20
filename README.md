@@ -72,6 +72,6 @@ En la aplicación encontrarás un menú lateral interactivo con las siguientes h
 
 ## 🛠️ Cómo Actualizar o Agregar Nuevos Sabores
 Si en el futuro agregas un nuevo sabor, cambias los ingredientes o actualizas el precio, solo debes editar el archivo:
-👉 [flavors.js](file:///c:/Users/aaron/OneDrive/Desktop/donalfajor/src/data/flavors.js)
+👉 [flavors.js](src/data/flavors.js)
 
 Toda la aplicación web (catálogo, generador de posts, afiches imprimibles y links de WhatsApp) se actualizará automáticamente con la nueva información.

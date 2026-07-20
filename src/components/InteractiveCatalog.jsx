@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, ShoppingCart, X, Plus, Minus, Heart, Sparkles } from 'lucide-react';
 import { flavors, categories } from '../data/flavors';
 
 export default function InteractiveCatalog() {
@@ -91,41 +93,64 @@ export default function InteractiveCatalog() {
 
   return (
     <div className="catalog-container">
-      {/* Crayon Header */}
-      <div className="content-header">
-        <span className="handdrawn-decor-sun" role="img" aria-label="sun">☀️</span>
+      {/* Modern Header */}
+      <motion.div 
+        className="content-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div 
+          className="handdrawn-decor-sun"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <Sparkles size={32} className="text-yellow-400" />
+        </motion.div>
         <h1 className="content-title">Menú de Sabores</h1>
         <p className="content-description">
           ¡Hola! Explora nuestra variedad de alfajores hechos a mano con cariño. Rellenos abundantes, tapas horneadas y coberturas crujientes. ¡Todos los sabores valen **$1.000 la unidad**!
         </p>
-        <span className="handdrawn-decor-heart" role="img" aria-label="heart">❤️</span>
-      </div>
+        <motion.div 
+          className="handdrawn-decor-heart"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <Heart size={24} className="text-pink-400" fill="#F48FB1" />
+        </motion.div>
+      </motion.div>
 
       {/* Filters and Search Bar */}
-      <div className="catalog-filters no-print">
+      <motion.div 
+        className="catalog-filters no-print"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
         <div className="filter-group">
-          <button 
+          <motion.button 
             className={`filter-btn ${selectedCategory === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('all')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Todos
-          </button>
+          </motion.button>
           {categories.map(cat => (
-            <button
+            <motion.button
               key={cat.id}
               className={`filter-btn ${selectedCategory === cat.id ? 'active' : ''}`}
               onClick={() => setSelectedCategory(cat.id)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {cat.name}
-            </button>
+            </motion.button>
           ))}
         </div>
 
         <div className="search-input-wrapper">
-          <svg className="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <Search className="search-icon" size={18} />
           <input
             type="text"
             className="search-input"
@@ -134,7 +159,7 @@ export default function InteractiveCatalog() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* Wrapped Packaging Presentation Section */}
       <div className="wrapped-presentation-section no-print" style={{
@@ -179,118 +204,170 @@ export default function InteractiveCatalog() {
       </div>
 
       {/* Flavors Grid */}
-      <div className="flavors-grid">
-        {filteredFlavors.length > 0 ? (
-          filteredFlavors.map(flavor => (
-            <div key={flavor.id} className="flavor-card">
-              <div className="flavor-card-header-top">
-                <span className="flavor-card-category-tag">
-                  {categories.find(c => c.id === flavor.category)?.name}
-                </span>
-                <span className="flavor-card-price-badge">$1.000</span>
-              </div>
-
-              {/* Polaroid product frame with actual photo */}
-              <div className="polaroid-frame">
-                <div className="polaroid-tape"></div>
-                <div className="polaroid-image-wrapper">
-                  <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${flavor.image}`} alt={flavor.name} />
+      <motion.div 
+        className="flavors-grid"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <AnimatePresence>
+          {filteredFlavors.length > 0 ? (
+            filteredFlavors.map((flavor, index) => (
+              <motion.div 
+                key={flavor.id} 
+                className="flavor-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+              >
+                <div className="flavor-card-header-top">
+                  <span className="flavor-card-category-tag">
+                    {categories.find(c => c.id === flavor.category)?.name}
+                  </span>
+                  <span className="flavor-card-price-badge">$1.000</span>
                 </div>
-                <div className="polaroid-caption">
-                  {flavor.emoji} {flavor.name}
-                </div>
-              </div>
 
-              <p className="flavor-card-desc-text">{flavor.description}</p>
-              
-              <div className="flavor-card-list-details">
-                <div><strong>Relleno:</strong> {flavor.filling}</div>
-                <div><strong>Masa:</strong> {flavor.dough}</div>
-                <div><strong>Bañado:</strong> {flavor.coating}</div>
-              </div>
-
-              <div className="flavor-card-footer no-print">
-                <div className="quantity-selector">
-                  <button 
-                    className="quantity-btn" 
-                    onClick={() => handleQuantityChange(flavor.id, -1)}
-                  >
-                    -
-                  </button>
-                  <span className="quantity-value">{getQuantity(flavor.id)}</span>
-                  <button 
-                    className="quantity-btn" 
-                    onClick={() => handleQuantityChange(flavor.id, 1)}
-                  >
-                    +
-                  </button>
-                </div>
-                <button 
-                  className="btn-card-add"
-                  onClick={() => addToCart(flavor)}
+                {/* Polaroid product frame with actual photo */}
+                <motion.div 
+                  className="polaroid-frame"
+                  whileHover={{ rotate: 2, scale: 1.05 }}
                 >
-                  Pedir
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            <span style={{ fontSize: '3rem' }}>🔍</span>
-            <p style={{ marginTop: '1rem', fontWeight: 500, fontFamily: 'var(--font-handwritten)', fontSize: '1.8rem' }}>
-              No encontramos ese sabor por aquí...
-            </p>
-          </div>
-        )}
-      </div>
+                  <div className="polaroid-tape"></div>
+                  <div className="polaroid-image-wrapper">
+                    <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${flavor.image}`} alt={flavor.name} />
+                  </div>
+                  <div className="polaroid-caption">
+                    {flavor.emoji} {flavor.name}
+                  </div>
+                </motion.div>
+
+                <p className="flavor-card-desc-text">{flavor.description}</p>
+                
+                <div className="flavor-card-list-details">
+                  <div><strong>Relleno:</strong> {flavor.filling}</div>
+                  <div><strong>Masa:</strong> {flavor.dough}</div>
+                  <div><strong>Bañado:</strong> {flavor.coating}</div>
+                </div>
+
+                <div className="flavor-card-footer no-print">
+                  <div className="quantity-selector">
+                    <motion.button 
+                      className="quantity-btn" 
+                      onClick={() => handleQuantityChange(flavor.id, -1)}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Minus size={16} />
+                    </motion.button>
+                    <span className="quantity-value">{getQuantity(flavor.id)}</span>
+                    <motion.button 
+                      className="quantity-btn" 
+                      onClick={() => handleQuantityChange(flavor.id, 1)}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Plus size={16} />
+                    </motion.button>
+                  </div>
+                  <motion.button 
+                    className="btn-card-add"
+                    onClick={() => addToCart(flavor)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <ShoppingCart size={16} style={{ marginRight: '0.5rem' }} />
+                    Pedir
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <motion.div 
+              style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Search size={48} style={{ marginBottom: '1rem' }} />
+              <p style={{ fontWeight: 500, fontFamily: 'var(--font-handwritten)', fontSize: '1.8rem' }}>
+                No encontramos ese sabor por aquí...
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       {/* Floating Shopping Cart Summary */}
-      {totalItems > 0 && (
-        <div className="order-cart-panel no-print">
-          <div className="order-cart-header">
-            <h3 className="order-cart-title" style={{ fontFamily: 'var(--font-heading)' }}>
-              🧺 Mi Pedido <span style={{ fontSize: '0.95rem', backgroundColor: 'var(--accent-pink)', color: 'var(--accent-brown)', padding: '0.1rem 0.6rem', borderRadius: '999px', border: '1.5px solid var(--border-pencil)' }}>{totalItems}</span>
-            </h3>
-            <button className="order-cart-close" onClick={() => setCart({})} style={{ fontWeight: 'bold' }}>Vaciar</button>
-          </div>
-
-          <div className="order-cart-items">
-            {cartItemsArray.map(item => (
-              <div key={item.flavor.id} className="order-cart-item">
-                <div className="order-cart-item-info">
-                  <span className="order-cart-item-qty">{item.quantity}x</span>
-                  <span style={{ fontWeight: 600 }}>{item.flavor.name}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 700 }}>${(item.quantity * 1000).toLocaleString('es-CL')}</span>
-                  <button 
-                    className="order-cart-item-remove"
-                    onClick={() => removeFromCart(item.flavor.id)}
-                  >
-                    ❌
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="order-cart-totals" style={{ borderTop: '2px dashed var(--border-pencil)', paddingOver: '0.5rem' }}>
-            <span>Total:</span>
-            <span style={{ color: 'var(--accent-brown)' }}>${totalPrice.toLocaleString('es-CL')}</span>
-          </div>
-
-          <button 
-            className="btn-whatsapp-order"
-            onClick={handleWhatsAppCheckout}
-            style={{ border: '3px solid var(--border-pencil)', boxShadow: '3px 3px 0px var(--border-pencil)' }}
+      <AnimatePresence>
+        {totalItems > 0 && (
+          <motion.div 
+            className="order-cart-panel no-print"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.3 }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12.012 2c-5.506 0-9.988 4.482-9.988 9.988 0 1.761.46 3.473 1.336 4.985l-1.42 5.187 5.311-1.392c1.455.795 3.09 1.213 4.752 1.213 5.506 0 9.989-4.482 9.989-9.99 0-5.507-4.482-9.99-9.989-9.99zm5.727 14.156c-.244.688-1.427 1.348-1.956 1.413-.483.059-.974.1-3.13-.736-2.756-1.07-4.524-3.864-4.662-4.048-.138-.184-1.12-1.488-1.12-2.839 0-1.35.704-2.013.955-2.274.252-.262.551-.328.736-.328.184 0 .368.002.528.01.166.008.388-.063.608.468.225.541.77 1.868.835 2.001.066.133.11.288.02.467-.09.18-.138.288-.276.444-.138.156-.291.348-.414.468-.138.134-.282.28-.12.56.162.28.72 1.185 1.543 1.918.823.733 1.517.96 1.737 1.07.22.11.348.093.478-.057.13-.15.556-.648.704-.87.148-.22.296-.184.499-.11.204.074 1.298.613 1.522.725.225.112.374.168.428.261.054.093.054.542-.19 1.23z"/>
-            </svg>
-            Mandar Pedido por WhatsApp
-          </button>
-        </div>
-      )}
+            <div className="order-cart-header">
+              <h3 className="order-cart-title" style={{ fontFamily: 'var(--font-heading)' }}>
+                <ShoppingCart size={20} style={{ marginRight: '0.5rem' }} />
+                Mi Pedido 
+                <span style={{ fontSize: '0.95rem', backgroundColor: 'var(--accent-pink)', color: 'var(--accent-brown)', padding: '0.1rem 0.6rem', borderRadius: '999px', border: '1.5px solid var(--border-pencil)' }}>{totalItems}</span>
+              </h3>
+              <motion.button 
+                className="order-cart-close" 
+                onClick={() => setCart({})} 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <X size={18} />
+              </motion.button>
+            </div>
+
+            <div className="order-cart-items">
+              {cartItemsArray.map(item => (
+                <motion.div 
+                  key={item.flavor.id} 
+                  className="order-cart-item"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <div className="order-cart-item-info">
+                    <span className="order-cart-item-qty">{item.quantity}x</span>
+                    <span style={{ fontWeight: 600 }}>{item.flavor.name}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 700 }}>${(item.quantity * 1000).toLocaleString('es-CL')}</span>
+                    <motion.button 
+                      className="order-cart-item-remove"
+                      onClick={() => removeFromCart(item.flavor.id)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <X size={16} />
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="order-cart-totals" style={{ borderTop: '2px dashed var(--border-pencil)', paddingOver: '0.5rem' }}>
+              <span>Total:</span>
+              <span style={{ color: 'var(--accent-brown)' }}>${totalPrice.toLocaleString('es-CL')}</span>
+            </div>
+
+            <motion.button 
+              className="btn-whatsapp-order"
+              onClick={handleWhatsAppCheckout}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{ border: '3px solid var(--border-pencil)', boxShadow: '3px 3px 0px var(--border-pencil)' }}
+            >
+              <ShoppingCart size={18} style={{ marginRight: '0.5rem' }} />
+              Mandar Pedido por WhatsApp
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
