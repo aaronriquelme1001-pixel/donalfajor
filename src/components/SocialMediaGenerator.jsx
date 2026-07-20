@@ -1,13 +1,19 @@
 ﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Image as ImageIcon, Download, Palette, Type, 
+  Layout, Settings, Sparkles, Upload, X, 
+  Check, RotateCw, ZoomIn, Move, Edit3
+} from 'lucide-react';
 import html2canvas from 'html2canvas';
-import { flavors } from '../data/flavors';
+import { useFlavors } from '../hooks/useFlavors';
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
 
-const GALLERY_PRESET = [
+// Will be populated dynamically from useFlavors
+let GALLERY_PRESET = [
   { id: 'wrapped-1', label: 'Envueltos 1', src: '/assets/flavors/wrapped-1.png' },
   { id: 'wrapped-2', label: 'Envueltos 2', src: '/assets/flavors/wrapped-2.png' },
-  ...flavors.map(f => ({ id: f.id, label: f.name, src: f.image })),
 ];
 
 const COLOR_THEMES = [
@@ -180,7 +186,8 @@ function CanvasEl({ el, isSelected, isEditing, onPointerDown, onResizeStart, onD
 }
 
 export default function SocialMediaGenerator() {
-  const [selectedFlavorId, setSelectedFlavorId] = useState(flavors[0].id);
+  const { flavors, loading } = useFlavors();
+  const [selectedFlavorId, setSelectedFlavorId] = useState('');
   const [format, setFormat]     = useState('post');
   const [bgColor, setBgColor]   = useState(COLOR_THEMES[0].bg);
   const [doodles, setDoodles]   = useState(true);
@@ -191,10 +198,25 @@ export default function SocialMediaGenerator() {
   const [downloadScale, setDownloadScale]   = useState(2);
   const [isDownloading, setIsDownloading]   = useState(false);
   const [customGallery, setCustomGallery]   = useState([]);
+  const [activeControlPanel, setActiveControlPanel] = useState('flavor');
 
   const canvasRef    = useRef(null);
   const fileInputRef = useRef(null);
   const dragRef      = useRef(null);
+
+  // Update gallery preset when flavors load
+  useEffect(() => {
+    if (flavors.length > 0) {
+      GALLERY_PRESET = [
+        { id: 'wrapped-1', label: 'Envueltos 1', src: '/assets/flavors/wrapped-1.png' },
+        { id: 'wrapped-2', label: 'Envueltos 2', src: '/assets/flavors/wrapped-2.png' },
+        ...flavors.map(f => ({ id: f.id, label: f.name, src: f.image })),
+      ];
+      if (!selectedFlavorId) {
+        setSelectedFlavorId(flavors[0].id);
+      }
+    }
+  }, [flavors, selectedFlavorId]);
 
   const activeFlavor = flavors.find(f => f.id === selectedFlavorId) || flavors[0];
   const canvasH      = format === 'post' ? 430 : 730;
@@ -312,24 +334,64 @@ export default function SocialMediaGenerator() {
   const selectedEl = elements.find(el => el.id === selectedId);
   const isDark     = bgColor === '#4E342E';
 
+  if (loading) {
+    return (
+      <div className="generator-container" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p>Cargando sabores...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="generator-container">
-      <div className="content-header">
-        <span className="handdrawn-decor-sun" role="img" aria-label="sun">☀️</span>
+      <motion.div 
+        className="content-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div 
+          className="handdrawn-decor-sun"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <Sparkles size={32} className="text-yellow-400" />
+        </motion.div>
         <h1 className="content-title">Creador de Publicaciones</h1>
         <p className="content-description">
-          Clic para seleccionar · Doble clic para editar texto · Arrastra para mover · Esquinas azules para redimensionar · Galeria de fotos incluida
+          Clic para seleccionar · Doble clic para editar texto · Arrastra para mover · Esquinas azules para redimensionar · Galería de fotos incluida
         </p>
-        <span className="handdrawn-decor-heart" role="img" aria-label="heart">❤️</span>
-      </div>
+        <motion.div 
+          className="handdrawn-decor-heart"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <Edit3 size={24} className="text-pink-400" />
+        </motion.div>
+      </motion.div>
 
       <div className="generator-layout">
-        <div className="generator-preview-panel no-print">
-          <div style={{ display:'flex', gap:'0.5rem', marginBottom:'0.75rem', justifyContent:'center' }}>
-            {[['post','📷 Post Cuadrado'],['story','📱 Historia Vertical']].map(([val,lbl]) => (
-              <button key={val}
-                className={'quick-filter-btn' + (format === val ? ' active' : '')}
-                onClick={() => setFormat(val)}>{lbl}</button>
+        <motion.div 
+          className="generator-preview-panel no-print"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <div className="format-selector">
+            {[
+              { id: 'post', label: 'Post Cuadrado', icon: Layout },
+              { id: 'story', label: 'Historia Vertical', icon: ImageIcon }
+            ].map(({ id, label, icon: Icon }) => (
+              <motion.button
+                key={id}
+                className={`format-btn ${format === id ? 'active' : ''}`}
+                onClick={() => setFormat(id)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </motion.button>
             ))}
           </div>
 
@@ -365,180 +427,293 @@ export default function SocialMediaGenerator() {
           </div>
 
           {selectedEl && (
-            <div className="canvas-hint">
+            <motion.div 
+              className="canvas-hint"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               {selectedEl.type === 'image'
-                ? '📸 Foto seleccionada — elige una imagen de la galeria para cambiarla'
+                ? '📸 Foto seleccionada — elige una imagen de la galería para cambiarla'
                 : selectedEl.type === 'text'
                 ? '✏️ Doble clic para editar · Arrastra para mover · Esquinas para tamaño'
                 : '🤏 Arrastra para mover · Esquinas para redimensionar'}
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="generator-control-panel">
-          <div className="control-section-title">🍬 Sabor Base</div>
-          <div className="control-group">
-            <select value={selectedFlavorId} onChange={(e) => setSelectedFlavorId(e.target.value)}>
-              {flavors.map(f => <option key={f.id} value={f.id}>{f.emoji} {f.name}</option>)}
-            </select>
+        <motion.div 
+          className="generator-control-panel"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="control-tabs">
+            {[
+              { id: 'flavor', label: 'Sabor', icon: Sparkles },
+              { id: 'gallery', label: 'Fotos', icon: ImageIcon },
+              { id: 'style', label: 'Estilo', icon: Palette },
+              { id: 'element', label: 'Elemento', icon: Settings },
+              { id: 'export', label: 'Exportar', icon: Download }
+            ].map(({ id, label, icon: Icon }) => (
+              <motion.button
+                key={id}
+                className={`control-tab ${activeControlPanel === id ? 'active' : ''}`}
+                onClick={() => setActiveControlPanel(id)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Icon size={16} />
+                <span>{label}</span>
+              </motion.button>
+            ))}
           </div>
 
-          <div className="control-section-title">📸 Galeria de Fotos</div>
-          <p style={{ fontSize:'0.72rem', color:'var(--text-muted)', margin:'-0.25rem 0 0.5rem' }}>
-            {selectedEl?.type === 'image'
-              ? 'Clic en miniatura para cambiar la foto'
-              : 'Selecciona la foto en el canvas, luego elige aqui'}
-          </p>
-          <div className="photo-gallery-grid">
-            {allGallery.map(img => {
-              const thumb = img.isCustom ? img.src : BASE + img.src;
-              return (
-                <div key={img.id} className="photo-gallery-thumb"
-                  onClick={() => applyGalleryImage(img.isCustom ? img.src : img.src)}
-                  title={img.label}>
-                  <img src={thumb} alt={img.label}
-                    style={{ width:'100%', height:'100%', objectFit:'cover' }}
-                    onError={(e) => { e.target.style.display='none'; }} />
-                </div>
-              );
-            })}
-            <div className="photo-gallery-thumb photo-gallery-upload"
-              onClick={() => fileInputRef.current?.click()} title="Subir nueva foto">
-              <span style={{ fontSize:'1.5rem', lineHeight:1 }}>+</span>
-              <span style={{ fontSize:'0.6rem', marginTop:3 }}>Subir</span>
-            </div>
-          </div>
-          <input ref={fileInputRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleGalleryUpload} />
-
-          <div className="control-section-title">🎨 Fondo y Colores</div>
-          <div className="control-group">
-            <label>Temas Rapidos</label>
-            <div style={{ display:'flex', gap:'0.4rem', flexWrap:'wrap' }}>
-              {COLOR_THEMES.map(t => (
-                <div key={t.id} onClick={() => applyTheme(t)} title={t.id}
-                  style={{
-                    width:28, height:28, borderRadius:'50%', background:t.bg,
-                    border: bgColor === t.bg ? '3px solid #2196F3' : '2px solid #5D4037',
-                    cursor:'pointer', flexShrink:0,
-                  }} />
-              ))}
-            </div>
-          </div>
-          <div className="control-group">
-            <label>Color de Fondo</label>
-            <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)}
-              style={{ width:'100%', height:36, border:'none', borderRadius:8, cursor:'pointer' }} />
-          </div>
-
-          <div className="control-section-title">Tipografia</div>
-          <div className="control-group">
-            <label>Fuente Global</label>
-            <select onChange={(e) => applyFont(e.target.value)}>
-              {FONTS.map(f => <option key={f.id} value={f.family}>{f.name}</option>)}
-            </select>
-          </div>
-
-          {selectedEl?.type === 'text' && (
-            <>
-              <div className="control-section-title">Texto Seleccionado</div>
-              <div className="control-group">
-                <label>Color</label>
-                <input type="color" value={selectedEl.color}
-                  onChange={(e) => updateEl(selectedEl.id, { color: e.target.value })}
-                  style={{ width:'100%', height:36, border:'none', borderRadius:8, cursor:'pointer' }} />
-              </div>
-              <div className="control-group">
-                <label>Tamaño ({Math.round(selectedEl.fontSize)}px)</label>
-                <input type="range" min="8" max="80" value={selectedEl.fontSize}
-                  onChange={(e) => updateEl(selectedEl.id, { fontSize: Number(e.target.value) })} />
-              </div>
-              <div className="control-group">
-                <div style={{ display:'flex', gap:'0.4rem' }}>
-                  <button
-                    style={{ flex:1, padding:'0.4rem', borderRadius:6, border:'2px solid var(--border-pencil)',
-                      background: selectedEl.bold ? '#FBC02D' : 'white',
-                      fontWeight:'bold', cursor:'pointer' }}
-                    onClick={() => updateEl(selectedEl.id, { bold: !selectedEl.bold })}>B</button>
-                  {['left','center','right'].map(a => (
-                    <button key={a}
-                      style={{ flex:1, padding:'0.4rem', borderRadius:6, border:'2px solid var(--border-pencil)',
-                        background: selectedEl.textAlign === a ? '#FBC02D' : 'white',
-                        cursor:'pointer', fontSize:'0.7rem' }}
-                      onClick={() => updateEl(selectedEl.id, { textAlign: a })}>
-                      {a === 'left' ? 'Iz' : a === 'center' ? 'Ce' : 'De'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {selectedEl?.type === 'image' && (
-            <>
-              <div className="control-section-title">Foto Seleccionada</div>
-              <div className="control-group">
-                <label>Marco</label>
-                <select value={selectedEl.frameStyle}
-                  onChange={(e) => updateEl(selectedEl.id, { frameStyle: e.target.value })}>
-                  <option value="polaroid">Polaroid</option>
-                  <option value="circle">Circular</option>
-                  <option value="plain">Sin Marco</option>
-                </select>
-              </div>
-              <div className="control-group">
-                <label>Zoom ({(selectedEl.zoom||1).toFixed(1)}x)</label>
-                <input type="range" min="1" max="3" step="0.05" value={selectedEl.zoom||1}
-                  onChange={(e) => updateEl(selectedEl.id, { zoom: Number(e.target.value) })} />
-              </div>
-              <div className="control-group">
-                <label>Pan Horizontal ({selectedEl.panX||0}px)</label>
-                <input type="range" min="-120" max="120" value={selectedEl.panX||0}
-                  onChange={(e) => updateEl(selectedEl.id, { panX: Number(e.target.value) })} />
-              </div>
-              <div className="control-group">
-                <label>Pan Vertical ({selectedEl.panY||0}px)</label>
-                <input type="range" min="-120" max="120" value={selectedEl.panY||0}
-                  onChange={(e) => updateEl(selectedEl.id, { panY: Number(e.target.value) })} />
-              </div>
-              {selectedEl.frameStyle === 'polaroid' && (
+          <AnimatePresence mode="wait">
+            {activeControlPanel === 'flavor' && (
+              <motion.div
+                key="flavor"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="control-content"
+              >
                 <div className="control-group">
-                  <label>Rotacion ({selectedEl.rotation||0} grados)</label>
-                  <input type="range" min="-15" max="15" value={selectedEl.rotation||0}
-                    onChange={(e) => updateEl(selectedEl.id, { rotation: Number(e.target.value) })} />
+                  <label>Seleccionar Sabor</label>
+                  <select value={selectedFlavorId} onChange={(e) => setSelectedFlavorId(e.target.value)}>
+                    {flavors.map(f => <option key={f.id} value={f.id}>{f.emoji} {f.name}</option>)}
+                  </select>
                 </div>
-              )}
-            </>
-          )}
+              </motion.div>
+            )}
 
-          <div className="control-section-title">Decoracion</div>
-          <div className="control-group" style={{ display:'flex', alignItems:'center', gap:'0.5rem', flexDirection:'row' }}>
-            <input type="checkbox" id="doodles-t" checked={doodles}
-              onChange={(e) => setDoodles(e.target.checked)}
-              style={{ width:'auto', margin:0, cursor:'pointer' }} />
-            <label htmlFor="doodles-t" style={{ margin:0, cursor:'pointer', fontSize:'0.9rem' }}>Dibujitos de fondo</label>
-          </div>
+            {activeControlPanel === 'gallery' && (
+              <motion.div
+                key="gallery"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="control-content"
+              >
+                <p className="control-hint">
+                  {selectedEl?.type === 'image'
+                    ? 'Clic en miniatura para cambiar la foto'
+                    : 'Selecciona la foto en el canvas, luego elige aquí'}
+                </p>
+                <div className="photo-gallery-grid">
+                  {allGallery.map(img => {
+                    const thumb = img.isCustom ? img.src : BASE + img.src;
+                    return (
+                      <motion.div 
+                        key={img.id} 
+                        className="photo-gallery-thumb"
+                        onClick={() => applyGalleryImage(img.isCustom ? img.src : img.src)}
+                        title={img.label}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <img src={thumb} alt={img.label}
+                          style={{ width:'100%', height:'100%', objectFit:'cover' }}
+                          onError={(e) => { e.target.style.display='none'; }} />
+                      </motion.div>
+                    );
+                  })}
+                  <motion.div 
+                    className="photo-gallery-thumb photo-gallery-upload"
+                    onClick={() => fileInputRef.current?.click()} 
+                    title="Subir nueva foto"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Upload size={24} />
+                    <span>Subir</span>
+                  </motion.div>
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleGalleryUpload} />
+              </motion.div>
+            )}
 
-          <div className="control-section-title">Descargar</div>
-          <div className="control-group">
-            <label>Formato</label>
-            <select value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value)}>
-              <option value="image/png">PNG</option>
-              <option value="image/jpeg">JPG</option>
-            </select>
-          </div>
-          <div className="control-group">
-            <label>Resolucion</label>
-            <select value={downloadScale} onChange={(e) => setDownloadScale(Number(e.target.value))}>
-              <option value={1}>Normal (1x)</option>
-              <option value={2}>HD (2x)</option>
-              <option value={3}>Super HD (3x)</option>
-            </select>
-          </div>
-          <button className="btn-download-canva" onClick={downloadImage} disabled={isDownloading}
-            style={{ width:'100%', marginTop:'0.5rem' }}>
-            {isDownloading ? 'Generando...' : 'Descargar ' + (downloadFormat === 'image/png' ? 'PNG' : 'JPG')}
-          </button>
-        </div>
+            {activeControlPanel === 'style' && (
+              <motion.div
+                key="style"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="control-content"
+              >
+                <div className="control-group">
+                  <label>Temas Rápidos</label>
+                  <div className="theme-colors">
+                    {COLOR_THEMES.map(t => (
+                      <motion.div 
+                        key={t.id} 
+                        onClick={() => applyTheme(t)} 
+                        title={t.id}
+                        className={`theme-color ${bgColor === t.bg ? 'active' : ''}`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ background: t.bg }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="control-group">
+                  <label>Color de Fondo</label>
+                  <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} />
+                </div>
+                <div className="control-group">
+                  <label>Fuente Global</label>
+                  <select onChange={(e) => applyFont(e.target.value)}>
+                    {FONTS.map(f => <option key={f.id} value={f.family}>{f.name}</option>)}
+                  </select>
+                </div>
+                <div className="control-group">
+                  <label>Decoración</label>
+                  <div className="checkbox-wrapper">
+                    <input type="checkbox" id="doodles-t" checked={doodles}
+                      onChange={(e) => setDoodles(e.target.checked)} />
+                    <label htmlFor="doodles-t">Dibujitos de fondo</label>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeControlPanel === 'element' && (
+              <motion.div
+                key="element"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="control-content"
+              >
+                {!selectedEl ? (
+                  <p className="control-hint">Selecciona un elemento en el canvas para editarlo</p>
+                ) : selectedEl.type === 'text' ? (
+                  <>
+                    <div className="control-group">
+                      <label>Color</label>
+                      <input type="color" value={selectedEl.color}
+                        onChange={(e) => updateEl(selectedEl.id, { color: e.target.value })} />
+                    </div>
+                    <div className="control-group">
+                      <label>Tamaño ({Math.round(selectedEl.fontSize)}px)</label>
+                      <input type="range" min="8" max="80" value={selectedEl.fontSize}
+                        onChange={(e) => updateEl(selectedEl.id, { fontSize: Number(e.target.value) })} />
+                    </div>
+                    <div className="control-group">
+                      <label>Alineación</label>
+                      <div className="text-align-buttons">
+                        {['left','center','right'].map(a => (
+                          <motion.button
+                            key={a}
+                            className={`align-btn ${selectedEl.textAlign === a ? 'active' : ''}`}
+                            onClick={() => updateEl(selectedEl.id, { textAlign: a })}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {a === 'left' ? 'Izquierda' : a === 'center' ? 'Centro' : 'Derecha'}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="control-group">
+                      <label>Estilo</label>
+                      <motion.button
+                        className={`bold-btn ${selectedEl.bold ? 'active' : ''}`}
+                        onClick={() => updateEl(selectedEl.id, { bold: !selectedEl.bold })}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Type size={16} />
+                        <span>Negrita</span>
+                      </motion.button>
+                    </div>
+                  </>
+                ) : selectedEl.type === 'image' ? (
+                  <>
+                    <div className="control-group">
+                      <label>Marco</label>
+                      <select value={selectedEl.frameStyle}
+                        onChange={(e) => updateEl(selectedEl.id, { frameStyle: e.target.value })}>
+                        <option value="polaroid">Polaroid</option>
+                        <option value="circle">Circular</option>
+                        <option value="plain">Sin Marco</option>
+                      </select>
+                    </div>
+                    <div className="control-group">
+                      <label>Zoom ({(selectedEl.zoom||1).toFixed(1)}x)</label>
+                      <input type="range" min="1" max="3" step="0.05" value={selectedEl.zoom||1}
+                        onChange={(e) => updateEl(selectedEl.id, { zoom: Number(e.target.value) })} />
+                    </div>
+                    <div className="control-group">
+                      <label>Pan Horizontal ({selectedEl.panX||0}px)</label>
+                      <input type="range" min="-120" max="120" value={selectedEl.panX||0}
+                        onChange={(e) => updateEl(selectedEl.id, { panX: Number(e.target.value) })} />
+                    </div>
+                    <div className="control-group">
+                      <label>Pan Vertical ({selectedEl.panY||0}px)</label>
+                      <input type="range" min="-120" max="120" value={selectedEl.panY||0}
+                        onChange={(e) => updateEl(selectedEl.id, { panY: Number(e.target.value) })} />
+                    </div>
+                    {selectedEl.frameStyle === 'polaroid' && (
+                      <div className="control-group">
+                        <label>Rotación ({selectedEl.rotation||0}°)</label>
+                        <input type="range" min="-15" max="15" value={selectedEl.rotation||0}
+                          onChange={(e) => updateEl(selectedEl.id, { rotation: Number(e.target.value) })} />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="control-hint">Tipo de elemento no soportado</p>
+                )}
+              </motion.div>
+            )}
+
+            {activeControlPanel === 'export' && (
+              <motion.div
+                key="export"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="control-content"
+              >
+                <div className="control-group">
+                  <label>Formato</label>
+                  <select value={downloadFormat} onChange={(e) => setDownloadFormat(e.target.value)}>
+                    <option value="image/png">PNG</option>
+                    <option value="image/jpeg">JPG</option>
+                  </select>
+                </div>
+                <div className="control-group">
+                  <label>Resolución</label>
+                  <select value={downloadScale} onChange={(e) => setDownloadScale(Number(e.target.value))}>
+                    <option value={1}>Normal (1x)</option>
+                    <option value={2}>HD (2x)</option>
+                    <option value={3}>Super HD (3x)</option>
+                  </select>
+                </div>
+                <motion.button 
+                  className="btn-download-canva" 
+                  onClick={downloadImage} 
+                  disabled={isDownloading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {isDownloading ? (
+                    <>
+                      <RotateCw size={18} className="animate-spin" />
+                      <span>Generando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download size={18} />
+                      <span>Descargar {downloadFormat === 'image/png' ? 'PNG' : 'JPG'}</span>
+                    </>
+                  )}
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );

@@ -1722,6 +1722,291 @@ h1, h2, h3, h4, h5, h6 {
   border-top: 3px dashed var(--border-pencil);
 }
 
+/* ── Generator Modern Styles ─────────────────────────────────────────── */
+.format-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.format-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.format-btn:hover {
+  background: var(--accent-pink);
+  transform: translateY(-2px);
+}
+
+.format-btn.active {
+  background: var(--accent-brown);
+  color: white;
+  border-color: var(--accent-brown);
+}
+
+.control-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 3px solid var(--border-pencil);
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
+}
+
+.control-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.control-tab:hover {
+  background: var(--accent-pink);
+  color: var(--accent-brown);
+}
+
+.control-tab.active {
+  background: var(--accent-brown);
+  color: white;
+  border-color: var(--accent-brown);
+}
+
+.control-content {
+  padding: 0.5rem 0;
+}
+
+.control-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--accent-blue);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-pencil);
+}
+
+.theme-colors {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.theme-color {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid var(--border-pencil);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.theme-color:hover {
+  transform: scale(1.1);
+}
+
+.theme-color.active {
+  border-color: var(--accent-brown);
+  box-shadow: 0 0 0 3px var(--accent-pink);
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-wrapper label {
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.text-align-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.align-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid var(--border-pencil);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.align-btn:hover {
+  background: var(--accent-blue);
+}
+
+.align-btn.active {
+  background: var(--accent-brown);
+  color: white;
+  border-color: var(--accent-brown);
+}
+
+.bold-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--border-pencil);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: 100%;
+}
+
+.bold-btn:hover {
+  background: var(--accent-pink);
+}
+
+.bold-btn.active {
+  background: var(--accent-brown);
+  color: white;
+  border-color: var(--accent-brown);
+}
+
+.photo-gallery-thumb.photo-gallery-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: var(--accent-pink);
+  border: 2px dashed var(--border-pencil);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.photo-gallery-thumb.photo-gallery-upload:hover {
+  background: var(--accent-brown);
+  color: white;
+}
+
+.photo-gallery-thumb.photo-gallery-upload span {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.generator-control-panel select,
+.generator-control-panel input[type="color"] {
+  width: 100%;
+  padding: 0.6rem;
+  border: 2px solid var(--border-pencil);
+  border-radius: var(--radius-sm);
+  background: var(--bg-brand);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.generator-control-panel select:focus,
+.generator-control-panel input[type="color"]:focus {
+  outline: none;
+  border-color: var(--accent-pink);
+}
+
+.generator-control-panel input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-pencil);
+  outline: none;
+  cursor: pointer;
+}
+
+.generator-control-panel input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-brown);
+  border: 2px solid white;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.generator-control-panel input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.btn-download-canva {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--accent-brown);
+  color: white;
+  border: 3px solid var(--border-pencil);
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: 100%;
+}
+
+.btn-download-canva:hover:not(:disabled) {
+  background: var(--accent-pink);
+  color: var(--accent-brown);
+}
+
+.btn-download-canva:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 /* ── Range slider styling ─────────────────────────────────────────── */
 .control-group input[type="range"] {
   -webkit-appearance: none;
