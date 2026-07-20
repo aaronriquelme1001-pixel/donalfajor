@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, X, Plus, Minus, Heart, Sparkles } from 'lucide-react';
 import { useFlavors } from '../hooks/useFlavors';
+import { getImageUrl } from '../utils/imageUrl';
 
 export default function InteractiveCatalog() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -193,7 +194,7 @@ export default function InteractiveCatalog() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div className="polaroid-frame" style={{ margin: 0, padding: '8px 8px 16px' }}>
             <div className="polaroid-image-wrapper" style={{ height: '140px' }}>
-              <img src={`${import.meta.env.BASE_URL}assets/flavors/wrapped-1.png`} alt="Envoltura Grupal" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <img src={getImageUrl('assets/flavors/wrapped-1.png')} alt="Envoltura Grupal" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px', fontFamily: 'var(--font-handwritten)' }}>
               🌈 Variedad de colores y sabores
@@ -201,7 +202,7 @@ export default function InteractiveCatalog() {
           </div>
           <div className="polaroid-frame" style={{ margin: 0, padding: '8px 8px 16px' }}>
             <div className="polaroid-image-wrapper" style={{ height: '140px' }}>
-              <img src={`${import.meta.env.BASE_URL}assets/flavors/wrapped-2.png`} alt="Trío de Envolturas" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              <img src={getImageUrl('assets/flavors/wrapped-2.png')} alt="Trío de Envolturas" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             </div>
             <div className="polaroid-caption" style={{ fontSize: '0.85rem', marginTop: '4px', fontFamily: 'var(--font-handwritten)' }}>
               🧸 Stickers estilo infantil y tiernos
@@ -243,7 +244,7 @@ export default function InteractiveCatalog() {
                 >
                   <div className="polaroid-tape"></div>
                   <div className="polaroid-image-wrapper">
-                    <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${flavor.image}`} alt={flavor.name} />
+                    <img src={getImageUrl(flavor.image)} alt={flavor.name} />
                   </div>
                   <div className="polaroid-caption">
                     {flavor.emoji} {flavor.name}

@@ -1,20 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit, Trash2, Upload, X, Save, Image as ImageIcon } from 'lucide-react';
-import { categories as defaultCategories } from '../data/flavors';
-
-const STORAGE_KEY_FLAVORS = 'donalfajor_flavors';
-const STORAGE_KEY_CATEGORIES = 'donalfavor_categories';
+import { Plus, Edit, Trash2, Upload, X, Save, Image as ImageIcon, Download, RotateCcw } from 'lucide-react';
+import { useFlavors } from '../hooks/useFlavors';
+import { getImageUrl } from '../utils/imageUrl';
 
 export default function FlavorAdmin() {
-  const [flavors, setFlavors] = useState([]);
-  const [categories, setCategories] = useState(defaultCategories);
+  const { flavors, categories, addFlavor, updateFlavor, deleteFlavor, resetToDefaults } = useFlavors();
   const [isEditing, setIsEditing] = useState(false);
   const [editingFlavor, setEditingFlavor] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
 
-  // Form state
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     id: '',
     name: '',
     category: 'classics',
@@ -28,39 +24,9 @@ export default function FlavorAdmin() {
     themeColor: '#FDFBF7',
     textColor: '#5D4037',
     tagline: ''
-  });
+  };
 
-  // Load data from localStorage on mount
-  useEffect(() => {
-    const savedFlavors = localStorage.getItem(STORAGE_KEY_FLAVORS);
-    const savedCategories = localStorage.getItem(STORAGE_KEY_CATEGORIES);
-    
-    if (savedFlavors) {
-      setFlavors(JSON.parse(savedFlavors));
-    } else {
-      // Load default flavors from flavors.js
-      import('../data/flavors').then(({ flavors: defaultFlavors }) => {
-        setFlavors(defaultFlavors);
-        localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify(defaultFlavors));
-      });
-    }
-    
-    if (savedCategories) {
-      setCategories(JSON.parse(savedCategories));
-    }
-  }, []);
-
-  // Save to localStorage whenever flavors change
-  useEffect(() => {
-    if (flavors.length > 0) {
-      localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify(flavors));
-    }
-  }, [flavors]);
-
-  // Save categories to localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(categories));
-  }, [categories]);
+  const [formData, setFormData] = useState(initialFormState);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -76,19 +42,11 @@ export default function FlavorAdmin() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
     if (editingFlavor) {
-      // Update existing flavor
-      setFlavors(flavors.map(f => f.id === editingFlavor.id ? { ...formData } : f));
+      updateFlavor(editingFlavor.id, formData);
     } else {
-      // Create new flavor
-      const newFlavor = {
-        ...formData,
-        id: formData.id || `flavor-${Date.now()}`
-      };
-      setFlavors([...flavors, newFlavor]);
+      addFlavor(formData);
     }
-    
     resetForm();
   };
 
@@ -100,103 +58,89 @@ export default function FlavorAdmin() {
   };
 
   const handleDelete = (flavorId) => {
-    if (confirm('¿Estás seguro de eliminar este sabor?')) {
-      setFlavors(flavors.filter(f => f.id !== flavorId));
+    if (window.confirm('¿Estás seguro de eliminar este sabor?')) {
+      deleteFlavor(flavorId);
     }
   };
 
   const resetForm = () => {
-    setFormData({
-      id: '',
-      name: '',
-      category: 'classics',
-      description: '',
-      price: 1000,
-      filling: '',
-      coating: '',
-      dough: '',
-      emoji: '🍫',
-      image: '',
-      themeColor: '#FDFBF7',
-      textColor: '#5D4037',
-      tagline: ''
-    });
-    setPreviewImage(null);
+    setFormData(initialFormState);
     setEditingFlavor(null);
+    setPreviewImage(null);
     setIsEditing(false);
   };
 
-  const addCategory = () => {
-    const name = prompt('Nombre de la nueva categoría:');
-    if (name) {
-      const newCategory = {
-        id: `cat-${Date.now()}`,
-        name,
-        description: 'Nueva categoría'
-      };
-      setCategories([...categories, newCategory]);
-    }
+  const exportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(flavors, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "donalfajor_flavors.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
   };
 
   return (
-    <div className="admin-container">
+    <div className="flavor-admin-container">
       <motion.div 
-        className="admin-header"
+        className="content-header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <h1 className="admin-title">Gestión de Sabores</h1>
+        <h1 className="content-title">Administración de Sabores ⚙️</h1>
+        <p className="content-description">
+          Añade, edita o elimina los sabores del menú. Todos los cambios se guardan de forma permanente en tu navegador y se reflejan automáticamente en el menú digital, creador de posts y afiches.
+        </p>
+      </motion.div>
+
+      <div className="admin-actions">
         <motion.button
           className="btn-primary"
-          onClick={() => setIsEditing(true)}
+          onClick={() => { resetForm(); setIsEditing(true); }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Plus size={20} style={{ marginRight: '0.5rem' }} />
-          Nuevo Sabor
+          <Plus size={20} />
+          <span>Añadir Nuevo Sabor</span>
         </motion.button>
-      </motion.div>
 
-      {/* Categories Section */}
+        <motion.button
+          className="btn-secondary"
+          onClick={exportJSON}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          <Download size={18} />
+          <span>Exportar Sabores (JSON)</span>
+        </motion.button>
+
+        <motion.button
+          className="btn-secondary"
+          onClick={() => {
+            if (window.confirm('¿Restablecer los sabores a los valores por defecto del sistema?')) {
+              resetToDefaults();
+            }
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#D32F2F', borderColor: '#D32F2F' }}
+        >
+          <RotateCcw size={18} />
+          <span>Restablecer Todo</span>
+        </motion.button>
+      </div>
+
       <motion.div 
-        className="categories-section"
+        className="flavors-list-admin"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <h2 className="section-title">Categorías</h2>
-        <div className="categories-grid">
-          {categories.map(cat => (
-            <div key={cat.id} className="category-card">
-              <h3>{cat.name}</h3>
-              <p>{cat.description}</p>
-              <span className="category-count">
-                {flavors.filter(f => f.category === cat.id).length} sabores
-              </span>
-            </div>
-          ))}
-          <motion.button
-            className="category-card add-category"
-            onClick={addCategory}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Plus size={32} />
-            <span>Agregar Categoría</span>
-          </motion.button>
-        </div>
-      </motion.div>
-
-      {/* Flavors List */}
-      <motion.div 
-        className="flavors-section"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <h2 className="section-title">Sabores ({flavors.length})</h2>
-        <div className="flavors-grid-admin">
-          {flavors.map(flavor => (
+        <h2>Sabores Actuales ({flavors.length})</h2>
+        <div className="admin-grid">
+          {flavors.map((flavor) => (
             <motion.div
               key={flavor.id}
               className="flavor-item-admin"
@@ -204,7 +148,7 @@ export default function FlavorAdmin() {
             >
               <div className="flavor-image-preview">
                 {flavor.image ? (
-                  <img src={flavor.image} alt={flavor.name} />
+                  <img src={getImageUrl(flavor.image)} alt={flavor.name} />
                 ) : (
                   <ImageIcon size={48} className="no-image" />
                 )}
@@ -354,64 +298,45 @@ export default function FlavorAdmin() {
                   </div>
 
                   <div className="form-group">
-                    <label>Eslogan</label>
+                    <label>Eslogan / Tagline</label>
                     <input
                       type="text"
                       value={formData.tagline}
                       onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Color de Tema</label>
-                    <input
-                      type="color"
-                      value={formData.themeColor}
-                      onChange={(e) => setFormData({ ...formData, themeColor: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Color de Texto</label>
-                    <input
-                      type="color"
-                      value={formData.textColor}
-                      onChange={(e) => setFormData({ ...formData, textColor: e.target.value })}
+                      placeholder="Ej: Dulzura única en cada mordida"
                     />
                   </div>
 
                   <div className="form-group full-width">
-                    <label>Imagen</label>
-                    <div className="image-upload-area">
+                    <label>Imagen del Producto</label>
+                    <div className="image-upload-container">
                       <input
                         type="file"
-                        id="image-upload"
+                        id="flavor-image-input"
                         accept="image/*"
                         onChange={handleImageUpload}
-                        className="image-input"
+                        style={{ display: 'none' }}
                       />
-                      <label htmlFor="image-upload" className="image-upload-label">
-                        <Upload size={32} />
+                      <label htmlFor="flavor-image-input" className="image-upload-button">
+                        <Upload size={20} />
                         <span>Subir Imagen</span>
                       </label>
-                      {previewImage && (
-                        <div className="image-preview">
-                          <img src={previewImage} alt="Preview" />
-                          <motion.button
-                            type="button"
-                            className="remove-image"
-                            onClick={() => {
-                              setPreviewImage(null);
-                              setFormData({ ...formData, image: '' });
-                            }}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            <X size={16} />
-                          </motion.button>
-                        </div>
-                      )}
+                      <input
+                        type="text"
+                        placeholder="O ingresa una ruta de imagen (ej: assets/flavors/mi-sabor.png)"
+                        value={formData.image}
+                        onChange={(e) => {
+                          setFormData({ ...formData, image: e.target.value });
+                          setPreviewImage(e.target.value);
+                        }}
+                        className="image-path-input"
+                      />
                     </div>
+                    {previewImage && (
+                      <div className="image-preview-box">
+                        <img src={getImageUrl(previewImage)} alt="Vista previa" />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -420,19 +345,19 @@ export default function FlavorAdmin() {
                     type="button"
                     className="btn-secondary"
                     onClick={resetForm}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     Cancelar
                   </motion.button>
                   <motion.button
                     type="submit"
                     className="btn-primary"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <Save size={18} style={{ marginRight: '0.5rem' }} />
-                    {editingFlavor ? 'Guardar Cambios' : 'Crear Sabor'}
+                    <Save size={20} />
+                    <span>{editingFlavor ? 'Guardar Cambios' : 'Crear Sabor'}</span>
                   </motion.button>
                 </div>
               </form>

@@ -2,7 +2,28 @@ import { useState, useEffect } from 'react';
 import { flavors as defaultFlavors, categories as defaultCategories } from '../data/flavors';
 
 const STORAGE_KEY_FLAVORS = 'donalfajor_flavors';
-const STORAGE_KEY_CATEGORIES = 'donalfavor_categories';
+const STORAGE_KEY_CATEGORIES = 'donalfajor_categories';
+
+// Helper to sanitize any image paths stored in localStorage from older sessions
+function sanitizeFlavors(flavorList) {
+  if (!Array.isArray(flavorList)) return defaultFlavors;
+  return flavorList.map(f => {
+    let image = f.image || '';
+    if (image.includes('docs/assets/')) {
+      image = image.replace('docs/assets/', 'assets/');
+    }
+    // Update old default names if stored in localStorage
+    let name = f.name;
+    if (name === 'Manjar-blanco') name = 'Dulce de Leche Blanco';
+    if (name === 'Manjar-negro') name = 'Dulce de Leche Negro';
+
+    return {
+      ...f,
+      name,
+      image
+    };
+  });
+}
 
 export function useFlavors() {
   const [flavors, setFlavors] = useState([]);
@@ -14,14 +35,27 @@ export function useFlavors() {
     const savedCategories = localStorage.getItem(STORAGE_KEY_CATEGORIES);
     
     if (savedFlavors) {
-      setFlavors(JSON.parse(savedFlavors));
+      try {
+        const parsed = JSON.parse(savedFlavors);
+        const sanitized = sanitizeFlavors(parsed);
+        setFlavors(sanitized);
+        localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify(sanitized));
+      } catch (err) {
+        setFlavors(defaultFlavors);
+        localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify(defaultFlavors));
+      }
     } else {
       setFlavors(defaultFlavors);
       localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify(defaultFlavors));
     }
     
     if (savedCategories) {
-      setCategories(JSON.parse(savedCategories));
+      try {
+        setCategories(JSON.parse(savedCategories));
+      } catch (err) {
+        setCategories(defaultCategories);
+        localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(defaultCategories));
+      }
     } else {
       setCategories(defaultCategories);
       localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(defaultCategories));
@@ -32,8 +66,9 @@ export function useFlavors() {
 
   const addFlavor = (flavor) => {
     const newFlavor = { ...flavor, id: flavor.id || `flavor-${Date.now()}` };
-    setFlavors([...flavors, newFlavor]);
-    localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify([...flavors, newFlavor]));
+    const updated = [...flavors, newFlavor];
+    setFlavors(updated);
+    localStorage.setItem(STORAGE_KEY_FLAVORS, JSON.stringify(updated));
     return newFlavor;
   };
 
@@ -51,8 +86,9 @@ export function useFlavors() {
 
   const addCategory = (category) => {
     const newCategory = { ...category, id: category.id || `cat-${Date.now()}` };
-    setCategories([...categories, newCategory]);
-    localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify([...categories, newCategory]));
+    const updated = [...categories, newCategory];
+    setCategories(updated);
+    localStorage.setItem(STORAGE_KEY_CATEGORIES, JSON.stringify(updated));
     return newCategory;
   };
 

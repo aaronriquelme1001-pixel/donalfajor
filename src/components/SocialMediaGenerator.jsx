@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Image as ImageIcon, Download, Palette, Type, 
@@ -7,13 +7,13 @@ import {
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { useFlavors } from '../hooks/useFlavors';
+import { getImageUrl } from '../utils/imageUrl';
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
 
-// Will be populated dynamically from useFlavors
 let GALLERY_PRESET = [
-  { id: 'wrapped-1', label: 'Envueltos 1', src: '/assets/flavors/wrapped-1.png' },
-  { id: 'wrapped-2', label: 'Envueltos 2', src: '/assets/flavors/wrapped-2.png' },
+  { id: 'wrapped-1', label: 'Envueltos 1', src: 'assets/flavors/wrapped-1.png' },
+  { id: 'wrapped-2', label: 'Envueltos 2', src: 'assets/flavors/wrapped-2.png' },
 ];
 
 const COLOR_THEMES = [
@@ -132,11 +132,7 @@ function CanvasEl({ el, isSelected, isEditing, onPointerDown, onResizeStart, onD
   }
 
   if (el.type === 'image') {
-    const imgSrc = el.src?.startsWith('data:') 
-      ? el.src 
-      : el.src?.startsWith('/') 
-        ? el.src 
-        : BASE + el.src;
+    const imgSrc = getImageUrl(el.src);
     const imgStyle = {
       width: '100%', height: '100%', objectFit: 'cover', display: 'block',
       transform: 'scale(' + (el.zoom||1) + ') translate(' + (el.panX||0) + 'px,' + (el.panY||0) + 'px)',
@@ -181,7 +177,7 @@ function CanvasEl({ el, isSelected, isEditing, onPointerDown, onResizeStart, onD
     return (
       <div style={{ ...wrap, borderRadius: '50%', overflow: 'hidden', border: '2px solid #5D4037', background: 'white' }}
         onPointerDown={onPointerDown}>
-        <img src={BASE + '/logo.png'} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src={getImageUrl('logo.png')} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         {Handles}
       </div>
     );
@@ -208,14 +204,22 @@ export default function SocialMediaGenerator() {
   const fileInputRef = useRef(null);
   const dragRef      = useRef(null);
 
+  // Load custom gallery from localStorage
+  useEffect(() => {
+    const savedGallery = localStorage.getItem('donalfajor_creator_gallery');
+    if (savedGallery) {
+      try { setCustomGallery(JSON.parse(savedGallery)); } catch (e) {}
+    }
+  }, []);
+
   // Update gallery preset when flavors load
   useEffect(() => {
     if (flavors.length > 0) {
       GALLERY_PRESET = [
-        { id: 'wrapped-1', label: 'Envueltos 1', src: '/assets/flavors/wrapped-1.png' },
-        { id: 'wrapped-2', label: 'Envueltos 2', src: '/assets/flavors/wrapped-2.png' },
+        { id: 'wrapped-1', label: 'Envueltos 1', src: 'assets/flavors/wrapped-1.png' },
+        { id: 'wrapped-2', label: 'Envueltos 2', src: 'assets/flavors/wrapped-2.png' },
         ...flavors
-          .filter(f => f.image) // Only include flavors with images
+          .filter(f => f.image)
           .map(f => ({ id: f.id, label: f.name, src: f.image })),
       ];
       if (!selectedFlavorId && flavors.length > 0) {
@@ -227,19 +231,38 @@ export default function SocialMediaGenerator() {
   const activeFlavor = flavors.find(f => f.id === selectedFlavorId) || (flavors.length > 0 ? flavors[0] : null);
   const canvasH      = format === 'post' ? 430 : 730;
 
+  // Load or build elements and save to localStorage
   useEffect(() => {
     if (activeFlavor) {
-      const theme = COLOR_THEMES[0];
-      setElements(buildElements(activeFlavor, format, theme));
-      setBgColor(theme.bg);
+      const storageKey = `donalfajor_creator_el_${activeFlavor.id}_${format}`;
+      const savedEl = localStorage.getItem(storageKey);
+      if (savedEl) {
+        try {
+          setElements(JSON.parse(savedEl));
+        } catch (e) {
+          const theme = COLOR_THEMES[0];
+          setElements(buildElements(activeFlavor, format, theme));
+        }
+      } else {
+        const theme = COLOR_THEMES[0];
+        setElements(buildElements(activeFlavor, format, theme));
+      }
+      setBgColor(COLOR_THEMES[0].bg);
       setSelectedId(null);
       setEditingId(null);
     }
-  }, [selectedFlavorId, format, activeFlavor]); // eslint-disable-line
+  }, [selectedFlavorId, format, activeFlavor]);
 
-  const updateEl = useCallback((id, updates) =>
-    setElements(prev => prev.map(el => el.id === id ? { ...el, ...updates } : el))
-  , []);
+  const updateEl = useCallback((id, updates) => {
+    setElements(prev => {
+      const next = prev.map(el => el.id === id ? { ...el, ...updates } : el);
+      if (activeFlavor) {
+        const storageKey = `donalfajor_creator_el_${activeFlavor.id}_${format}`;
+        localStorage.setItem(storageKey, JSON.stringify(next));
+      }
+      return next;
+    });
+  }, [activeFlavor, format]);
 
   useEffect(() => {
     const onMove = (e) => {
@@ -287,15 +310,28 @@ export default function SocialMediaGenerator() {
 
   const applyTheme = (t) => {
     setBgColor(t.bg);
-    setElements(prev => prev.map(el => {
-      if (['brand','title','footer'].includes(el.id)) return { ...el, color: t.text };
-      if (['brand-sub','tagline'].includes(el.id))    return { ...el, color: t.accent };
-      return el;
-    }));
+    setElements(prev => {
+      const next = prev.map(el => {
+        if (['brand','title','footer'].includes(el.id)) return { ...el, color: t.text };
+        if (['brand-sub','tagline'].includes(el.id))    return { ...el, color: t.accent };
+        return el;
+      });
+      if (activeFlavor) {
+        localStorage.setItem(`donalfajor_creator_el_${activeFlavor.id}_${format}`, JSON.stringify(next));
+      }
+      return next;
+    });
   };
 
-  const applyFont = (family) =>
-    setElements(prev => prev.map(el => el.type === 'text' ? { ...el, fontFamily: family } : el));
+  const applyFont = (family) => {
+    setElements(prev => {
+      const next = prev.map(el => el.type === 'text' ? { ...el, fontFamily: family } : el);
+      if (activeFlavor) {
+        localStorage.setItem(`donalfajor_creator_el_${activeFlavor.id}_${format}`, JSON.stringify(next));
+      }
+      return next;
+    });
+  };
 
   const applyGalleryImage = (src) => {
     const sel    = elements.find(el => el.id === selectedId && el.type === 'image');
@@ -309,7 +345,9 @@ export default function SocialMediaGenerator() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUrl = ev.target.result;
-      setCustomGallery(prev => [...prev, { id: 'custom-' + Date.now(), label: file.name, src: dataUrl, isCustom: true }]);
+      const updatedGallery = [...customGallery, { id: 'custom-' + Date.now(), label: file.name, src: dataUrl, isCustom: true }];
+      setCustomGallery(updatedGallery);
+      localStorage.setItem('donalfajor_creator_gallery', JSON.stringify(updatedGallery));
       applyGalleryImage(dataUrl);
     };
     reader.readAsDataURL(file);
@@ -517,16 +555,12 @@ export default function SocialMediaGenerator() {
                 </p>
                 <div className="photo-gallery-grid">
                   {allGallery.map(img => {
-                    const thumb = img.isCustom 
-                      ? img.src 
-                      : img.src?.startsWith('/') 
-                        ? img.src 
-                        : BASE + img.src;
+                    const thumb = getImageUrl(img.src);
                     return (
                       <motion.div 
                         key={img.id} 
                         className="photo-gallery-thumb"
-                        onClick={() => applyGalleryImage(img.isCustom ? img.src : img.src)}
+                        onClick={() => applyGalleryImage(img.src)}
                         title={img.label}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -606,11 +640,11 @@ export default function SocialMediaGenerator() {
                 className="control-content"
               >
                 {!selectedEl ? (
-                  <p className="control-hint">Selecciona un elemento en el canvas para editarlo</p>
+                  <p className="control-hint">Haz clic en un elemento del canvas para editar sus propiedades.</p>
                 ) : selectedEl.type === 'text' ? (
                   <>
                     <div className="control-group">
-                      <label>Color</label>
+                      <label>Color del Texto</label>
                       <input type="color" value={selectedEl.color}
                         onChange={(e) => updateEl(selectedEl.id, { color: e.target.value })} />
                     </div>
@@ -620,32 +654,28 @@ export default function SocialMediaGenerator() {
                         onChange={(e) => updateEl(selectedEl.id, { fontSize: Number(e.target.value) })} />
                     </div>
                     <div className="control-group">
-                      <label>Alineación</label>
-                      <div className="text-align-buttons">
+                      <label>Estilo</label>
+                      <div className="button-group">
+                        <motion.button
+                          className={`btn-style ${selectedEl.bold ? 'active' : ''}`}
+                          onClick={() => updateEl(selectedEl.id, { bold: !selectedEl.bold })}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <strong>B</strong>
+                        </motion.button>
                         {['left','center','right'].map(a => (
                           <motion.button
                             key={a}
-                            className={`align-btn ${selectedEl.textAlign === a ? 'active' : ''}`}
+                            className={`btn-style ${selectedEl.textAlign === a ? 'active' : ''}`}
                             onClick={() => updateEl(selectedEl.id, { textAlign: a })}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
-                            {a === 'left' ? 'Izquierda' : a === 'center' ? 'Centro' : 'Derecha'}
+                            {a === 'left' ? 'Iz' : a === 'center' ? 'Ce' : 'De'}
                           </motion.button>
                         ))}
                       </div>
-                    </div>
-                    <div className="control-group">
-                      <label>Estilo</label>
-                      <motion.button
-                        className={`bold-btn ${selectedEl.bold ? 'active' : ''}`}
-                        onClick={() => updateEl(selectedEl.id, { bold: !selectedEl.bold })}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Type size={16} />
-                        <span>Negrita</span>
-                      </motion.button>
                     </div>
                   </>
                 ) : selectedEl.type === 'image' ? (
@@ -682,9 +712,7 @@ export default function SocialMediaGenerator() {
                       </div>
                     )}
                   </>
-                ) : (
-                  <p className="control-hint">Tipo de elemento no soportado</p>
-                )}
+                ) : null}
               </motion.div>
             )}
 
@@ -718,17 +746,7 @@ export default function SocialMediaGenerator() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {isDownloading ? (
-                    <>
-                      <RotateCw size={18} className="animate-spin" />
-                      <span>Generando...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Download size={18} />
-                      <span>Descargar {downloadFormat === 'image/png' ? 'PNG' : 'JPG'}</span>
-                    </>
-                  )}
+                  {isDownloading ? 'Generando...' : 'Descargar ' + (downloadFormat === 'image/png' ? 'PNG' : 'JPG')}
                 </motion.button>
               </motion.div>
             )}

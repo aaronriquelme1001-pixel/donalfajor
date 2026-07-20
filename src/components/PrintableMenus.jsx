@@ -1,27 +1,42 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { flavors } from '../data/flavors';
+import { useFlavors } from '../hooks/useFlavors';
+import { getImageUrl } from '../utils/imageUrl';
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
 
-// Gallery of all product images available for swapping
-const GALLERY = [
-  { id: 'wrapped-1', label: 'Envueltos 1', src: '/assets/flavors/wrapped-1.png' },
-  { id: 'wrapped-2', label: 'Envueltos 2', src: '/assets/flavors/wrapped-2.png' },
-  ...flavors.map(f => ({ id: f.id, label: f.name, src: f.image })),
-];
+// Editable text component - click to edit inline and persist to localStorage
+function ET({ id, children, style, tag: Tag = 'span', editMode, className }) {
+  const storageKey = id ? `donalfajor_et_${id}` : null;
+  const [val, setVal] = useState(() => {
+    if (storageKey) {
+      const saved = localStorage.getItem(storageKey);
+      if (saved !== null) return saved;
+    }
+    return children;
+  });
 
-// Editable text component - click to edit inline
-function ET({ children, style, tag: Tag = 'span', editMode, className }) {
-  const [val, setVal] = useState(children);
-  const ref = useRef(null);
+  useEffect(() => {
+    if (storageKey && localStorage.getItem(storageKey) === null) {
+      setVal(children);
+    }
+  }, [children, storageKey]);
+
+  const handleBlur = (e) => {
+    const text = e.target.innerText;
+    setVal(text);
+    if (storageKey) {
+      localStorage.setItem(storageKey, text);
+    }
+  };
+
   if (!editMode) return <Tag className={className} style={style}>{val}</Tag>;
+
   return (
     <Tag
       className={className}
       contentEditable
       suppressContentEditableWarning
-      ref={ref}
       style={{
         ...style,
         outline: '2px dashed #2196F3',
@@ -31,21 +46,38 @@ function ET({ children, style, tag: Tag = 'span', editMode, className }) {
         minWidth: '1ch',
         display: 'inline-block',
       }}
-      onBlur={(e) => setVal(e.target.innerText)}
+      onBlur={handleBlur}
     >{val}</Tag>
   );
 }
 
-// Editable image component - shows gallery picker in edit mode (uses portal to escape overflow:hidden)
-function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
+// Editable image component - shows gallery picker in edit mode and persists selection
+function EImg({ id, src, alt, style, editMode, onChangeSrc, customGallery, galleryList }) {
+  const storageKey = id ? `donalfajor_eimg_${id}` : null;
   const [open, setOpen] = useState(false);
   const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
   const overlayRef = useRef(null);
   const fileRef = useRef(null);
-  const [curSrc, setCurSrc] = useState(src);
+  
+  const [curSrc, setCurSrc] = useState(() => {
+    if (storageKey) {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) return saved;
+    }
+    return src;
+  });
+
+  useEffect(() => {
+    if (storageKey && !localStorage.getItem(storageKey)) {
+      setCurSrc(src);
+    }
+  }, [src, storageKey]);
 
   const select = (newSrc) => {
     setCurSrc(newSrc);
+    if (storageKey) {
+      localStorage.setItem(storageKey, newSrc);
+    }
     onChangeSrc?.(newSrc);
     setOpen(false);
   };
@@ -62,7 +94,6 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
     setOpen(v => !v);
   };
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     const close = () => setOpen(false);
@@ -70,12 +101,12 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
     return () => { clearTimeout(timer); document.removeEventListener('pointerdown', close); };
   }, [open]);
 
-  const allGallery = [...GALLERY, ...(customGallery || [])];
+  const allGallery = [...(galleryList || []), ...(customGallery || [])];
 
   return (
     <div style={{ position: 'relative', display: 'inline-block', width: '100%', height: '100%' }}>
       <img
-        src={curSrc?.startsWith('data:') ? curSrc : BASE + curSrc}
+        src={getImageUrl(curSrc)}
         alt={alt}
         style={style}
         onError={(e) => { e.target.style.opacity = '0.3'; }}
@@ -119,10 +150,10 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
           }}
         >
           {allGallery.map(img => {
-            const thumb = img.isCustom ? img.src : BASE + img.src;
+            const thumb = getImageUrl(img.src);
             return (
               <div key={img.id}
-                onClick={() => select(img.isCustom ? img.src : img.src)}
+                onClick={() => select(img.src)}
                 title={img.label}
                 style={{
                   width: 58, height: 58, borderRadius: 8, overflow: 'hidden',
@@ -167,11 +198,17 @@ function EImg({ src, alt, style, editMode, onChangeSrc, customGallery }) {
   );
 }
 
-
 export default function PrintableMenus() {
+  const { flavors, loading } = useFlavors();
   const [activeLayout, setActiveLayout] = useState('full-menu');
   const [editMode, setEditMode] = useState(false);
   const [customGallery] = useState([]);
+
+  const galleryList = [
+    { id: 'wrapped-1', label: 'Envueltos 1', src: 'assets/flavors/wrapped-1.png' },
+    { id: 'wrapped-2', label: 'Envueltos 2', src: 'assets/flavors/wrapped-2.png' },
+    ...flavors.map(f => ({ id: f.id, label: f.name, src: f.image })),
+  ];
 
   const classics = flavors.filter(f => f.category === 'classics');
   const fruit    = flavors.filter(f => f.category === 'fruit');
@@ -182,15 +219,23 @@ export default function PrintableMenus() {
     setTimeout(() => window.print(), 200);
   };
 
-  const em = editMode; // shorthand
+  const em = editMode;
+
+  if (loading) {
+    return (
+      <div className="printable-container" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p>Cargando afiches...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="printable-container">
       <div className="content-header no-print">
         <span className="handdrawn-decor-sun" role="img" aria-label="sun">☀️</span>
-        <h1 className="content-title">Afiches y Menus Imprimibles</h1>
+        <h1 className="content-title">Afiches y Menús Imprimibles</h1>
         <p className="content-description">
-          Elige el diseño, activa el modo edicion para modificar textos e imagenes directamente en el afiche y luego imprime o guarda como PDF.
+          Elige el diseño, activa el modo edición para modificar textos e imágenes directamente en el afiche y luego imprime o guarda como PDF.
         </p>
         <span className="handdrawn-decor-heart" role="img" aria-label="heart">❤️</span>
       </div>
@@ -199,12 +244,12 @@ export default function PrintableMenus() {
         <button
           className={'btn-secondary' + (activeLayout === 'full-menu' ? ' btn-primary' : '')}
           onClick={() => setActiveLayout('full-menu')}>
-          Menu Completo (A4)
+          Menú Completo (A4)
         </button>
         <button
           className={'btn-secondary' + (activeLayout === 'split-lines' ? ' btn-primary' : '')}
           onClick={() => setActiveLayout('split-lines')}>
-          Lineas con Fotos (3 Hojas)
+          Líneas con Fotos (3 Hojas)
         </button>
         <button
           className={'btn-secondary' + (activeLayout === 'promo-poster' ? ' btn-primary' : '')}
@@ -212,7 +257,6 @@ export default function PrintableMenus() {
           Afiche Promocional (A4)
         </button>
 
-        {/* Edit mode toggle */}
         <button
           onClick={() => setEditMode(!editMode)}
           style={{
@@ -227,14 +271,14 @@ export default function PrintableMenus() {
             fontSize: '0.95rem',
             transition: 'all 0.2s',
           }}>
-          {editMode ? '✅ Editando' : '✏️ Editar Textos e Imagenes'}
+          {editMode ? '✅ Editando' : '✏️ Editar Textos e Imágenes'}
         </button>
 
         <button
           className="btn-primary"
           onClick={handlePrint}
           style={{ backgroundColor: '#4E342E', color: 'white', marginLeft: 'auto' }}>
-          Imprimir / Guardar PDF
+          🖨️ Imprimir / Guardar PDF
         </button>
       </div>
 
@@ -246,7 +290,7 @@ export default function PrintableMenus() {
         }}>
           <span>✏️</span>
           <span>
-            Modo Edicion activo: Clic en cualquier texto para editarlo · Clic en imagen para cambiarla
+            Modo Edición activo: Clic en cualquier texto para editarlo · Clic en imagen para cambiarla. Los cambios quedan guardados automáticamente.
           </span>
         </div>
       )}
@@ -263,56 +307,56 @@ export default function PrintableMenus() {
 
             <div className="print-header">
               <div className="print-logo" style={{ borderRadius:'50%' }}>
-                <img src={BASE + '/logo.png'} alt="Don Alfajor Logo" />
+                <img src={getImageUrl('logo.png')} alt="Don Alfajor Logo" />
               </div>
-              <ET tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
-              <ET tag="span" className="print-subtitle" editMode={em}>Menu de Sabores Artesanales de Autor</ET>
+              <ET id="full-menu-header-title" tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
+              <ET id="full-menu-header-subtitle" tag="span" className="print-subtitle" editMode={em}>Menú de Sabores Artesanales de Autor ✨</ET>
             </div>
 
             <div className="print-body">
               <div className="print-category-section">
-                <ET tag="h3" className="print-category-title" editMode={em}>Clasicos y Dulces</ET>
+                <ET id="cat-title-classics" tag="h3" className="print-category-title" editMode={em}>🧸 Clásicos y Dulces</ET>
                 <div className="print-menu-grid">
                   {classics.map(f => (
                     <div key={f.id} className="print-menu-item">
                       <div className="print-item-header">
-                        <ET editMode={em}>{f.emoji + ' ' + f.name}</ET>
+                        <ET id={`item-name-${f.id}`} editMode={em}>{f.emoji + ' ' + f.name}</ET>
                         <span className="print-item-dots"></span>
-                        <ET className="print-item-price" editMode={em}>$1.000</ET>
+                        <ET id={`item-price-${f.id}`} className="print-item-price" editMode={em}>$1.000</ET>
                       </div>
-                      <ET tag="p" className="print-item-desc" editMode={em}>{f.filling + ' - ' + f.coating}</ET>
+                      <ET id={`item-desc-${f.id}`} tag="p" className="print-item-desc" editMode={em}>{f.filling + ' • ' + f.coating}</ET>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="print-category-section">
-                <ET tag="h3" className="print-category-title" editMode={em}>Frutales y Exoticos</ET>
+                <ET id="cat-title-fruit" tag="h3" className="print-category-title" editMode={em}>🍋 Frutales y Exóticos</ET>
                 <div className="print-menu-grid">
                   {fruit.map(f => (
                     <div key={f.id} className="print-menu-item">
                       <div className="print-item-header">
-                        <ET editMode={em}>{f.emoji + ' ' + f.name}</ET>
+                        <ET id={`item-name-${f.id}`} editMode={em}>{f.emoji + ' ' + f.name}</ET>
                         <span className="print-item-dots"></span>
-                        <ET className="print-item-price" editMode={em}>$1.000</ET>
+                        <ET id={`item-price-${f.id}`} className="print-item-price" editMode={em}>$1.000</ET>
                       </div>
-                      <ET tag="p" className="print-item-desc" editMode={em}>{f.filling + ' - ' + f.coating}</ET>
+                      <ET id={`item-desc-${f.id}`} tag="p" className="print-item-desc" editMode={em}>{f.filling + ' • ' + f.coating}</ET>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="print-category-section">
-                <ET tag="h3" className="print-category-title" editMode={em}>Linea Gourmet Premium</ET>
+                <ET id="cat-title-gourmet" tag="h3" className="print-category-title" editMode={em}>🍷 Línea Gourmet Premium</ET>
                 <div className="print-menu-grid">
                   {gourmet.map(f => (
                     <div key={f.id} className="print-menu-item">
                       <div className="print-item-header">
-                        <ET editMode={em}>{f.emoji + ' ' + f.name}</ET>
+                        <ET id={`item-name-${f.id}`} editMode={em}>{f.emoji + ' ' + f.name}</ET>
                         <span className="print-item-dots"></span>
-                        <ET className="print-item-price" editMode={em}>$1.000</ET>
+                        <ET id={`item-price-${f.id}`} className="print-item-price" editMode={em}>$1.000</ET>
                       </div>
-                      <ET tag="p" className="print-item-desc" editMode={em}>{f.filling + ' - ' + f.coating}</ET>
+                      <ET id={`item-desc-${f.id}`} tag="p" className="print-item-desc" editMode={em}>{f.filling + ' • ' + f.coating}</ET>
                     </div>
                   ))}
                 </div>
@@ -320,14 +364,14 @@ export default function PrintableMenus() {
             </div>
 
             <div className="print-footer-banner">
-              <ET tag="h3" style={{ fontFamily:'var(--font-heading)' }} editMode={em}>TODOS LOS SABORES A $1.000 LA UNIDAD</ET>
-              <ET tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.25rem' }} editMode={em}>Hechos con carino en nuestra pasteleria familiar</ET>
+              <ET id="full-menu-footer-h3" tag="h3" style={{ fontFamily:'var(--font-heading)' }} editMode={em}>TODOS LOS SABORES A $1.000 LA UNIDAD</ET>
+              <ET id="full-menu-footer-p" tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.25rem' }} editMode={em}>Hechos con cariño en nuestra pastelería familiar</ET>
             </div>
 
             <div className="print-contacts-footer">
-              <div className="print-contact-item"><strong>WhatsApp:</strong> <ET editMode={em}>979797420</ET></div>
-              <div className="print-contact-item"><ET editMode={em}>Recetas Caseras</ET></div>
-              <div className="print-contact-item"><ET editMode={em}>Venta Detalle y Mayor</ET></div>
+              <div className="print-contact-item"><strong>WhatsApp:</strong> <ET id="contact-wp" editMode={em}>979797420</ET></div>
+              <div className="print-contact-item"><ET id="contact-info1" editMode={em}>Recetas Caseras</ET></div>
+              <div className="print-contact-item"><ET id="contact-info2" editMode={em}>Venta Detalle y Mayor</ET></div>
             </div>
           </div>
         )}
@@ -343,10 +387,10 @@ export default function PrintableMenus() {
 
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius:'50%' }}>
-                  <img src={BASE + '/logo.png'} alt="Don Alfajor Logo" />
+                  <img src={getImageUrl('logo.png')} alt="Don Alfajor Logo" />
                 </div>
-                <ET tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
-                <ET tag="span" className="print-subtitle" style={{ color:'var(--accent-pink)' }} editMode={em}>Linea Clasicos y Dulces</ET>
+                <ET id="sheet1-header-title" tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
+                <ET id="sheet1-header-subtitle" tag="span" className="print-subtitle" style={{ color:'var(--accent-pink)' }} editMode={em}>Línea Clásicos y Dulces 🧸</ET>
               </div>
 
               <div className="print-body" style={{ display:'flex', flexDirection:'column', gap:'0.8rem' }}>
@@ -355,29 +399,29 @@ export default function PrintableMenus() {
                     <div style={{ width:'110px', flexShrink:0 }}>
                       <div className="polaroid-frame" style={{ padding:'6px 6px 12px', transform:'rotate(' + (i%2===0?-2:2) + 'deg)', width:'100%' }}>
                         <div className="polaroid-image-wrapper" style={{ height:'70px' }}>
-                          <EImg src={f.image} alt={f.name} editMode={em} customGallery={customGallery}
+                          <EImg id={`sheet1-img-${f.id}`} src={f.image} alt={f.name} editMode={em} customGallery={customGallery} galleryList={galleryList}
                             style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                         </div>
                         <div className="polaroid-caption" style={{ fontSize:'0.85rem', marginTop:'4px' }}>
-                          <ET editMode={em}>{f.emoji + ' ' + f.name}</ET>
+                          <ET id={`sheet1-caption-${f.id}`} editMode={em}>{f.emoji + ' ' + f.name}</ET>
                         </div>
                       </div>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', fontWeight:'bold', fontSize:'1.1rem', marginBottom:'0.15rem' }}>
-                        <ET style={{ color:'var(--accent-brown)' }} editMode={em}>{f.name}</ET>
-                        <ET style={{ color:'var(--accent-pink)' }} editMode={em}>$1.000</ET>
+                        <ET id={`sheet1-name-${f.id}`} style={{ color:'var(--accent-brown)' }} editMode={em}>{f.name}</ET>
+                        <ET id={`sheet1-price-${f.id}`} style={{ color:'var(--accent-pink)' }} editMode={em}>$1.000</ET>
                       </div>
-                      <ET tag="p" style={{ fontSize:'0.85rem', color:'var(--text-primary)', margin:'0 0 2px 0', lineHeight:'1.25', display:'block' }} editMode={em}>{f.description}</ET>
-                      <ET style={{ fontSize:'0.7rem', color:'var(--text-secondary)', display:'block' }} editMode={em}>{f.filling + ' - ' + f.coating}</ET>
+                      <ET id={`sheet1-desc-${f.id}`} tag="p" style={{ fontSize:'0.85rem', color:'var(--text-primary)', margin:'0 0 2px 0', lineHeight:'1.25', display:'block' }} editMode={em}>{f.description}</ET>
+                      <ET id={`sheet1-details-${f.id}`} style={{ fontSize:'0.7rem', color:'var(--text-secondary)', display:'block' }} editMode={em}>{f.filling + ' • ' + f.coating}</ET>
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="print-footer-banner">
-                <ET tag="h3" editMode={em}>TODOS LOS SABORES A $1.000</ET>
-                <ET tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.2rem' }} editMode={em}>Pídelos al WhatsApp: 979797420</ET>
+                <ET id="sheet1-footer-h3" tag="h3" editMode={em}>TODOS LOS SABORES A $1.000</ET>
+                <ET id="sheet1-footer-p" tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.2rem' }} editMode={em}>Pídelos al WhatsApp: 979797420</ET>
               </div>
             </div>
 
@@ -389,10 +433,10 @@ export default function PrintableMenus() {
 
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius:'50%' }}>
-                  <img src={BASE + '/logo.png'} alt="Don Alfajor Logo" />
+                  <img src={getImageUrl('logo.png')} alt="Don Alfajor Logo" />
                 </div>
-                <ET tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
-                <ET tag="span" className="print-subtitle" style={{ color:'var(--accent-blue)' }} editMode={em}>Linea Frutales y Exoticos</ET>
+                <ET id="sheet2-header-title" tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
+                <ET id="sheet2-header-subtitle" tag="span" className="print-subtitle" style={{ color:'var(--accent-blue)' }} editMode={em}>Línea Frutales y Exóticos 🍋</ET>
               </div>
 
               <div className="print-body" style={{ display:'flex', flexDirection:'column', gap:'0.8rem' }}>
@@ -401,29 +445,29 @@ export default function PrintableMenus() {
                     <div style={{ width:'110px', flexShrink:0 }}>
                       <div className="polaroid-frame" style={{ padding:'6px 6px 12px', transform:'rotate(' + (i%2===0?2:-2) + 'deg)', width:'100%' }}>
                         <div className="polaroid-image-wrapper" style={{ height:'70px' }}>
-                          <EImg src={f.image} alt={f.name} editMode={em} customGallery={customGallery}
+                          <EImg id={`sheet2-img-${f.id}`} src={f.image} alt={f.name} editMode={em} customGallery={customGallery} galleryList={galleryList}
                             style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                         </div>
                         <div className="polaroid-caption" style={{ fontSize:'0.85rem', marginTop:'4px' }}>
-                          <ET editMode={em}>{f.emoji + ' ' + f.name}</ET>
+                          <ET id={`sheet2-caption-${f.id}`} editMode={em}>{f.emoji + ' ' + f.name}</ET>
                         </div>
                       </div>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', fontWeight:'bold', fontSize:'1.1rem', marginBottom:'0.15rem' }}>
-                        <ET style={{ color:'var(--accent-brown)' }} editMode={em}>{f.name}</ET>
-                        <ET style={{ color:'var(--accent-pink)' }} editMode={em}>$1.000</ET>
+                        <ET id={`sheet2-name-${f.id}`} style={{ color:'var(--accent-brown)' }} editMode={em}>{f.name}</ET>
+                        <ET id={`sheet2-price-${f.id}`} style={{ color:'var(--accent-pink)' }} editMode={em}>$1.000</ET>
                       </div>
-                      <ET tag="p" style={{ fontSize:'0.85rem', color:'var(--text-primary)', margin:'0 0 2px 0', lineHeight:'1.25', display:'block' }} editMode={em}>{f.description}</ET>
-                      <ET style={{ fontSize:'0.7rem', color:'var(--text-secondary)', display:'block' }} editMode={em}>{f.filling + ' - ' + f.coating}</ET>
+                      <ET id={`sheet2-desc-${f.id}`} tag="p" style={{ fontSize:'0.85rem', color:'var(--text-primary)', margin:'0 0 2px 0', lineHeight:'1.25', display:'block' }} editMode={em}>{f.description}</ET>
+                      <ET id={`sheet2-details-${f.id}`} style={{ fontSize:'0.7rem', color:'var(--text-secondary)', display:'block' }} editMode={em}>{f.filling + ' • ' + f.coating}</ET>
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="print-footer-banner" style={{ backgroundColor:'var(--accent-blue)' }}>
-                <ET tag="h3" editMode={em}>FRESCURA NATURAL A $1.000</ET>
-                <ET tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.2rem' }} editMode={em}>Pídelos al WhatsApp: 979797420</ET>
+                <ET id="sheet2-footer-h3" tag="h3" editMode={em}>FRESCURA NATURAL A $1.000</ET>
+                <ET id="sheet2-footer-p" tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.2rem' }} editMode={em}>Pídelos al WhatsApp: 979797420</ET>
               </div>
             </div>
 
@@ -435,10 +479,10 @@ export default function PrintableMenus() {
 
               <div className="print-header">
                 <div className="print-logo" style={{ borderRadius:'50%' }}>
-                  <img src={BASE + '/logo.png'} alt="Don Alfajor Logo" />
+                  <img src={getImageUrl('logo.png')} alt="Don Alfajor Logo" />
                 </div>
-                <ET tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
-                <ET tag="span" className="print-subtitle" style={{ color:'var(--accent-yellow)' }} editMode={em}>Linea Gourmet Premium</ET>
+                <ET id="sheet3-header-title" tag="h2" className="print-title" editMode={em}>Don Alfajor</ET>
+                <ET id="sheet3-header-subtitle" tag="span" className="print-subtitle" style={{ color:'var(--accent-yellow)' }} editMode={em}>Línea Gourmet Premium 🍷</ET>
               </div>
 
               <div className="print-body" style={{ display:'flex', flexDirection:'column', gap:'0.8rem' }}>
@@ -447,29 +491,29 @@ export default function PrintableMenus() {
                     <div style={{ width:'110px', flexShrink:0 }}>
                       <div className="polaroid-frame" style={{ padding:'6px 6px 12px', transform:'rotate(' + (i%2===0?-2:2) + 'deg)', width:'100%' }}>
                         <div className="polaroid-image-wrapper" style={{ height:'70px' }}>
-                          <EImg src={f.image} alt={f.name} editMode={em} customGallery={customGallery}
+                          <EImg id={`sheet3-img-${f.id}`} src={f.image} alt={f.name} editMode={em} customGallery={customGallery} galleryList={galleryList}
                             style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                         </div>
                         <div className="polaroid-caption" style={{ fontSize:'0.85rem', marginTop:'4px' }}>
-                          <ET editMode={em}>{f.emoji + ' ' + f.name}</ET>
+                          <ET id={`sheet3-caption-${f.id}`} editMode={em}>{f.emoji + ' ' + f.name}</ET>
                         </div>
                       </div>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ display:'flex', justifyContent:'space-between', fontWeight:'bold', fontSize:'1.1rem', marginBottom:'0.15rem' }}>
-                        <ET style={{ color:'var(--accent-brown)' }} editMode={em}>{f.name}</ET>
-                        <ET style={{ color:'var(--accent-pink)' }} editMode={em}>$1.000</ET>
+                        <ET id={`sheet3-name-${f.id}`} style={{ color:'var(--accent-brown)' }} editMode={em}>{f.name}</ET>
+                        <ET id={`sheet3-price-${f.id}`} style={{ color:'var(--accent-pink)' }} editMode={em}>$1.000</ET>
                       </div>
-                      <ET tag="p" style={{ fontSize:'0.85rem', color:'var(--text-primary)', margin:'0 0 2px 0', lineHeight:'1.25', display:'block' }} editMode={em}>{f.description}</ET>
-                      <ET style={{ fontSize:'0.7rem', color:'var(--text-secondary)', display:'block' }} editMode={em}>{f.filling + ' - ' + f.coating}</ET>
+                      <ET id={`sheet3-desc-${f.id}`} tag="p" style={{ fontSize:'0.85rem', color:'var(--text-primary)', margin:'0 0 2px 0', lineHeight:'1.25', display:'block' }} editMode={em}>{f.description}</ET>
+                      <ET id={`sheet3-details-${f.id}`} style={{ fontSize:'0.7rem', color:'var(--text-secondary)', display:'block' }} editMode={em}>{f.filling + ' • ' + f.coating}</ET>
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="print-footer-banner" style={{ backgroundColor:'var(--text-primary)', color:'white' }}>
-                <ET tag="h3" style={{ color:'var(--accent-yellow)' }} editMode={em}>SABORES EXCLUSIVOS A $1.000</ET>
-                <ET tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.2rem' }} editMode={em}>Pídelos al WhatsApp: 979797420</ET>
+                <ET id="sheet3-footer-h3" tag="h3" style={{ color:'var(--accent-yellow)' }} editMode={em}>SABORES EXCLUSIVOS A $1.000</ET>
+                <ET id="sheet3-footer-p" tag="p" style={{ fontFamily:'var(--font-handwritten)', fontSize:'1.2rem' }} editMode={em}>Pídelos al WhatsApp: 979797420</ET>
               </div>
             </div>
           </>
@@ -481,32 +525,32 @@ export default function PrintableMenus() {
             <span className="handdrawn-decor-sun" style={{ top:'30px', right:'30px', fontSize:'3rem' }}>☀️</span>
 
             <div className="print-logo" style={{ width:'150px', height:'150px', borderRadius:'50%', borderWidth:'4px', margin:'0 auto' }}>
-              <img src={BASE + '/logo.png'} alt="Don Alfajor Logo" />
+              <img src={getImageUrl('logo.png')} alt="Don Alfajor Logo" />
             </div>
 
             <div style={{ margin:'1rem 0' }}>
-              <ET tag="h1" style={{ fontSize:'4.2rem', color:'var(--accent-brown)', fontFamily:'var(--font-heading)', margin:0, lineHeight:1, display:'block' }} editMode={em}>Don Alfajor</ET>
-              <ET tag="p" style={{ fontSize:'1.4rem', fontFamily:'var(--font-handwritten)', color:'var(--text-secondary)', fontWeight:'bold', marginTop:'0.5rem', display:'block' }} editMode={em}>Sabores Artesanales Hechos con Amor</ET>
+              <ET id="poster-title" tag="h1" style={{ fontSize:'4.2rem', color:'var(--accent-brown)', fontFamily:'var(--font-heading)', margin:0, lineHeight:1, display:'block' }} editMode={em}>Don Alfajor</ET>
+              <ET id="poster-subtitle" tag="p" style={{ fontSize:'1.4rem', fontFamily:'var(--font-handwritten)', color:'var(--text-secondary)', fontWeight:'bold', marginTop:'0.5rem', display:'block' }} editMode={em}>Sabores Artesanales Hechos con Amor 💕</ET>
             </div>
 
             <div style={{ border:'4px solid var(--border-pencil)', borderRadius:'24px', padding:'2.5rem 2rem', width:'100%', margin:'1.5rem 0', backgroundColor:'#FFFDF9', boxShadow:'6px 6px 0px var(--border-pencil)' }}>
-              <ET tag="span" style={{ fontSize:'1.5rem', fontWeight:'bold', color:'var(--text-primary)', fontFamily:'var(--font-handwritten)', letterSpacing:'1px', display:'block' }} editMode={em}>Todos nuestros sabores!</ET>
-              <ET tag="h2" style={{ fontSize:'5.5rem', color:'var(--accent-pink)', fontFamily:'var(--font-heading)', margin:'0.2rem 0', lineHeight:1, display:'block' }} editMode={em}>$1.000</ET>
-              <ET tag="span" style={{ fontSize:'1.3rem', fontWeight:'bold', color:'var(--accent-brown)', display:'block' }} editMode={em}>UN MIL PESOS LA UNIDAD</ET>
-              <ET tag="p" style={{ fontSize:'0.95rem', color:'var(--text-muted)', marginTop:'0.8rem', display:'block' }} editMode={em}>Clasicos - Frutales - Linea Gourmet de Autor</ET>
+              <ET id="poster-box-tag" tag="span" style={{ fontSize:'1.5rem', fontWeight:'bold', color:'var(--text-primary)', fontFamily:'var(--font-handwritten)', letterSpacing:'1px', display:'block' }} editMode={em}>¡Todos nuestros sabores!</ET>
+              <ET id="poster-box-price" tag="h2" style={{ fontSize:'5.5rem', color:'var(--accent-pink)', fontFamily:'var(--font-heading)', margin:'0.2rem 0', lineHeight:1, display:'block' }} editMode={em}>$1.000</ET>
+              <ET id="poster-box-sub" tag="span" style={{ fontSize:'1.3rem', fontWeight:'bold', color:'var(--accent-brown)', display:'block' }} editMode={em}>UN MIL PESOS LA UNIDAD</ET>
+              <ET id="poster-box-desc" tag="p" style={{ fontSize:'0.95rem', color:'var(--text-muted)', marginTop:'0.8rem', display:'block' }} editMode={em}>Clásicos • Frutales • Línea Gourmet de Autor</ET>
             </div>
 
             <div style={{ display:'flex', flexDirection:'column', gap:'0.5rem', width:'100%' }}>
-              <ET tag="h3" style={{ fontSize:'1.6rem', color:'var(--accent-brown)', fontFamily:'var(--font-heading)' }} editMode={em}>Quieres hacer un pedido?</ET>
-              <ET tag="p" style={{ fontSize:'1.1rem', color:'var(--text-secondary)', fontFamily:'var(--font-handwritten)', fontWeight:'bold' }} editMode={em}>Escribenos o llamanos directamente</ET>
+              <ET id="poster-order-h3" tag="h3" style={{ fontSize:'1.6rem', color:'var(--accent-brown)', fontFamily:'var(--font-heading)' }} editMode={em}>¿Quieres hacer un pedido? 📝</ET>
+              <ET id="poster-order-p" tag="p" style={{ fontSize:'1.1rem', color:'var(--text-secondary)', fontFamily:'var(--font-handwritten)', fontWeight:'bold' }} editMode={em}>Escríbenos o llámanos directamente</ET>
 
               <div style={{ display:'inline-flex', alignItems:'center', gap:'0.5rem', backgroundColor:'#E8F5E9', color:'#1B5E20', border:'3px solid var(--border-pencil)', padding:'0.8rem 2.2rem', borderRadius:'50px', fontSize:'2.2rem', fontWeight:'bold', alignSelf:'center', margin:'0.8rem 0', fontFamily:'var(--font-heading)', boxShadow:'4px 4px 0px var(--border-pencil)' }}>
-                <ET editMode={em}>979797420</ET>
+                <ET id="poster-phone" editMode={em}>979797420</ET>
               </div>
             </div>
 
-            <ET tag="div" style={{ fontSize:'0.9rem', color:'var(--text-muted)', fontFamily:'var(--font-handwritten)' }} editMode={em}>
-              Ventas al detalle y por mayor - Elaboracion artesanal diaria
+            <ET id="poster-footer" tag="div" style={{ fontSize:'0.9rem', color:'var(--text-muted)', fontFamily:'var(--font-handwritten)' }} editMode={em}>
+              Ventas al detalle y por mayor • Elaboración artesanal diaria
             </ET>
           </div>
         )}
