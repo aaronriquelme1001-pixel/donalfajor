@@ -132,7 +132,11 @@ function CanvasEl({ el, isSelected, isEditing, onPointerDown, onResizeStart, onD
   }
 
   if (el.type === 'image') {
-    const imgSrc = el.src?.startsWith('data:') ? el.src : BASE + el.src;
+    const imgSrc = el.src?.startsWith('data:') 
+      ? el.src 
+      : el.src?.startsWith('/') 
+        ? el.src 
+        : BASE + el.src;
     const imgStyle = {
       width: '100%', height: '100%', objectFit: 'cover', display: 'block',
       transform: 'scale(' + (el.zoom||1) + ') translate(' + (el.panX||0) + 'px,' + (el.panY||0) + 'px)',
@@ -210,24 +214,28 @@ export default function SocialMediaGenerator() {
       GALLERY_PRESET = [
         { id: 'wrapped-1', label: 'Envueltos 1', src: '/assets/flavors/wrapped-1.png' },
         { id: 'wrapped-2', label: 'Envueltos 2', src: '/assets/flavors/wrapped-2.png' },
-        ...flavors.map(f => ({ id: f.id, label: f.name, src: f.image })),
+        ...flavors
+          .filter(f => f.image) // Only include flavors with images
+          .map(f => ({ id: f.id, label: f.name, src: f.image })),
       ];
-      if (!selectedFlavorId) {
+      if (!selectedFlavorId && flavors.length > 0) {
         setSelectedFlavorId(flavors[0].id);
       }
     }
   }, [flavors, selectedFlavorId]);
 
-  const activeFlavor = flavors.find(f => f.id === selectedFlavorId) || flavors[0];
+  const activeFlavor = flavors.find(f => f.id === selectedFlavorId) || (flavors.length > 0 ? flavors[0] : null);
   const canvasH      = format === 'post' ? 430 : 730;
 
   useEffect(() => {
-    const theme = COLOR_THEMES[0];
-    setElements(buildElements(activeFlavor, format, theme));
-    setBgColor(theme.bg);
-    setSelectedId(null);
-    setEditingId(null);
-  }, [selectedFlavorId, format]); // eslint-disable-line
+    if (activeFlavor) {
+      const theme = COLOR_THEMES[0];
+      setElements(buildElements(activeFlavor, format, theme));
+      setBgColor(theme.bg);
+      setSelectedId(null);
+      setEditingId(null);
+    }
+  }, [selectedFlavorId, format, activeFlavor]); // eslint-disable-line
 
   const updateEl = useCallback((id, updates) =>
     setElements(prev => prev.map(el => el.id === id ? { ...el, ...updates } : el))
@@ -338,6 +346,14 @@ export default function SocialMediaGenerator() {
     return (
       <div className="generator-container" style={{ textAlign: 'center', padding: '3rem' }}>
         <p>Cargando sabores...</p>
+      </div>
+    );
+  }
+
+  if (!activeFlavor) {
+    return (
+      <div className="generator-container" style={{ textAlign: 'center', padding: '3rem' }}>
+        <p>No hay sabores disponibles. Por favor crea sabores en el panel de administración.</p>
       </div>
     );
   }
@@ -501,7 +517,11 @@ export default function SocialMediaGenerator() {
                 </p>
                 <div className="photo-gallery-grid">
                   {allGallery.map(img => {
-                    const thumb = img.isCustom ? img.src : BASE + img.src;
+                    const thumb = img.isCustom 
+                      ? img.src 
+                      : img.src?.startsWith('/') 
+                        ? img.src 
+                        : BASE + img.src;
                     return (
                       <motion.div 
                         key={img.id} 
