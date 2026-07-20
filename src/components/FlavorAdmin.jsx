@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, Upload, X, Save, Image as ImageIcon, Download, RotateCcw, FolderPlus } from 'lucide-react';
 import { useFlavors } from '../hooks/useFlavors';
-import { getImageUrl } from '../utils/imageUrl';
+import { getImageUrl, compressImage } from '../utils/imageUrl';
 
 export default function FlavorAdmin() {
   const { flavors, categories, addFlavor, updateFlavor, deleteFlavor, addCategory, updateCategory, deleteCategory, resetToDefaults } = useFlavors();
   const [isEditingFlavor, setIsEditingFlavor] = useState(false);
   const [editingFlavor, setEditingFlavor] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState('');
 
   // Category Modal state
   const [isEditingCategory, setIsEditingCategory] = useState(false);
@@ -33,15 +35,22 @@ export default function FlavorAdmin() {
 
   const [formData, setFormData] = useState(initialFlavorFormState);
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    setImageUploading(true);
+    setImageError('');
+    try {
+      const compressed = await compressImage(file);
+      if (!compressed) throw new Error('No se pudo comprimir la imagen');
+      setPreviewImage(compressed);
+      setFormData(prev => ({ ...prev, image: compressed }));
+    } catch (err) {
+      console.error('Error al subir imagen:', err);
+      setImageError('❌ Error al procesar la imagen. Intenta con otra foto.');
+    } finally {
+      setImageUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -495,24 +504,50 @@ export default function FlavorAdmin() {
                         onChange={handleImageUpload}
                         style={{ display: 'none' }}
                       />
-                      <label htmlFor="flavor-image-input" className="btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <Upload size={18} />
-                        <span>Subir Imagen</span>
+                      <label
+                        htmlFor="flavor-image-input"
+                        className="btn-secondary"
+                        style={{ cursor: imageUploading ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', opacity: imageUploading ? 0.6 : 1 }}
+                      >
+                        {imageUploading ? (
+                          <>
+                            <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                            <span>Procesando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={18} />
+                            <span>Subir Imagen</span>
+                          </>
+                        )}
                       </label>
                       <input
                         type="text"
                         placeholder="O ruta de imagen (ej: assets/flavors/mi-sabor.png)"
-                        value={formData.image}
+                        value={formData.image.startsWith('data:') ? '(foto subida ✓)' : formData.image}
+                        readOnly={formData.image.startsWith('data:')}
                         onChange={(e) => {
+                          if (formData.image.startsWith('data:')) return;
                           setFormData({ ...formData, image: e.target.value });
                           setPreviewImage(e.target.value);
                         }}
                         style={{ flex: 1, minWidth: '200px' }}
                       />
                     </div>
-                    {previewImage && (
-                      <div className="image-preview-box" style={{ marginTop: '0.5rem', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-pencil)' }}>
-                        <img src={getImageUrl(previewImage)} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {imageError && (
+                      <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '0.3rem' }}>{imageError}</p>
+                    )}
+                    {previewImage && !imageUploading && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div className="image-preview-box" style={{ width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-pencil)', flexShrink: 0 }}>
+                          <img src={getImageUrl(previewImage)} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        {previewImage.startsWith('data:') && (
+                          <button type="button" onClick={() => { setPreviewImage(null); setFormData(p => ({ ...p, image: '' })); }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e53935', fontSize: '0.8rem' }}>
+                            ✕ Quitar foto
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

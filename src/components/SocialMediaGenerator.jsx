@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { useFlavors } from '../hooks/useFlavors';
-import { getImageUrl } from '../utils/imageUrl';
+import { getImageUrl, compressImage } from '../utils/imageUrl';
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
 
@@ -339,18 +339,18 @@ export default function SocialMediaGenerator() {
     if (target) updateEl(target.id, { src });
   };
 
-  const handleGalleryUpload = (e) => {
+  const handleGalleryUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
+    try {
+      const dataUrl = await compressImage(file);
       const updatedGallery = [...customGallery, { id: 'custom-' + Date.now(), label: file.name, src: dataUrl, isCustom: true }];
       setCustomGallery(updatedGallery);
       localStorage.setItem('donalfajor_creator_gallery', JSON.stringify(updatedGallery));
       applyGalleryImage(dataUrl);
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+    }
     e.target.value = '';
   };
 

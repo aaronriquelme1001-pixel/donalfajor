@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useFlavors } from '../hooks/useFlavors';
-import { getImageUrl } from '../utils/imageUrl';
+import { getImageUrl, compressImage } from '../utils/imageUrl';
 
 const BASE = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
 
@@ -183,12 +183,15 @@ function EImg({ id, src, alt, style, editMode, onChangeSrc, customGallery, galle
             <span>Subir</span>
           </div>
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-            onChange={(e) => {
+            onChange={async (e) => {
               const f = e.target.files[0];
               if (!f) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => select(ev.target.result);
-              reader.readAsDataURL(f);
+              try {
+                const compressed = await compressImage(f);
+                select(compressed);
+              } catch (err) {
+                console.error(err);
+              }
               e.target.value = '';
             }} />
         </div>,
