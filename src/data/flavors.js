@@ -15,7 +15,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🍦',
-    image: '/assets/flavors/manjar-blanco.png',
+    image: 'docs/assets/flavors/manjar-blanco.png',
     themeColor: '#FFFDF0',
     textColor: '#5D4037',
     tagline: 'Dulzura clásica en cada mordida'
@@ -30,7 +30,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate negro',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🍫',
-    image: '/assets/flavors/manjar-negro.png',
+    image: 'docs/assets/flavors/manjar-negro.png',
     themeColor: '#F7EBE1',
     textColor: '#4E342E',
     tagline: 'El balance perfecto del cacao y el manjar'
@@ -45,7 +45,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco o negro',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🍓',
-    image: '/assets/flavors/frambuesa.png',
+    image: 'docs/assets/flavors/frambuesa.png',
     themeColor: '#FFF0F5',
     textColor: '#C2185B',
     tagline: 'Frescura frutal envuelta en chocolate'
@@ -60,7 +60,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco o negro',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🍋',
-    image: '/assets/flavors/maracuya.png',
+    image: 'docs/assets/flavors/maracuya.png',
     themeColor: '#FFFDE7',
     textColor: '#F57F17',
     tagline: 'Un viaje tropical a través de los sentidos'
@@ -75,7 +75,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco o negro',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🧡',
-    image: '/assets/flavors/lucuma.png',
+    image: 'docs/assets/flavors/lucuma.png',
     themeColor: '#FFF3E0',
     textColor: '#E65100',
     tagline: 'El sabor único de la lúcuma de nuestra tierra'
@@ -90,7 +90,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco o negro',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🥥',
-    image: '/assets/flavors/coco.png',
+    image: 'docs/assets/flavors/coco.png',
     themeColor: '#F1F8E9',
     textColor: '#33691E',
     tagline: 'Un oasis de coco y dulce de leche'
@@ -105,7 +105,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco o negro',
     dough: 'Tapas de vainilla o chocolate a elección',
     emoji: '🥜',
-    image: '/assets/flavors/mani.png',
+    image: 'docs/assets/flavors/mani.png',
     themeColor: '#EFEBE9',
     textColor: '#4E342E',
     tagline: 'Crema de maní real para amantes del sabor tostado'
@@ -120,7 +120,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate negro de alta pureza',
     dough: 'Tapas de chocolate negro intensas',
     emoji: '🍷',
-    image: '/assets/flavors/vino.png',
+    image: 'docs/assets/flavors/vino.png',
     themeColor: '#F3E5F5',
     textColor: '#4A148C',
     tagline: 'Notas elegantes de vino tinto y frutos del bosque'
@@ -135,7 +135,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate negro',
     dough: 'Tapas de chocolate negro intensas',
     emoji: '🥃',
-    image: '/assets/flavors/whisky.png',
+    image: 'docs/assets/flavors/whisky.png',
     themeColor: '#ECEFF1',
     textColor: '#263238',
     tagline: 'Intensidad de café expreso con el toque seductor del whisky'
@@ -150,7 +150,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco o negro',
     dough: 'Tapas de vainilla o chocolate a elección',
     emoji: '🍵',
-    image: '/assets/flavors/chai-latte.png',
+    image: 'docs/assets/flavors/chai-latte.png',
     themeColor: '#E0F2F1',
     textColor: '#004D40',
     tagline: 'Una infusión cremosa de té chai y especias orientales'
@@ -165,7 +165,7 @@ export const flavors = [
     coating: 'Cobertura de chocolate blanco',
     dough: 'Tapas de vainilla tradicionales',
     emoji: '🍈',
-    image: '/assets/flavors/membrillo.png',
+    image: 'docs/assets/flavors/membrillo.png',
     themeColor: '#F9FBE7',
     textColor: '#827717',
     tagline: 'El sabor hogareño del membrillo de campo'
