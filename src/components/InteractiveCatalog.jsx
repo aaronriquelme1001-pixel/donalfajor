@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, X, Plus, Minus, Heart, Sparkles } from 'lucide-react';
-import { flavors, categories } from '../data/flavors';
+import { useFlavors } from '../hooks/useFlavors';
 
 export default function InteractiveCatalog() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState({});
   const [quantities, setQuantities] = useState({});
+  const { flavors, categories, loading } = useFlavors();
 
   // Helper to handle quantity changes per flavor
   const handleQuantityChange = (flavorId, amount) => {
@@ -93,75 +94,81 @@ export default function InteractiveCatalog() {
 
   return (
     <div className="catalog-container">
-      {/* Modern Header */}
-      <motion.div 
-        className="content-header"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div 
-          className="handdrawn-decor-sun"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        >
-          <Sparkles size={32} className="text-yellow-400" />
-        </motion.div>
-        <h1 className="content-title">Menú de Sabores</h1>
-        <p className="content-description">
-          ¡Hola! Explora nuestra variedad de alfajores hechos a mano con cariño. Rellenos abundantes, tapas horneadas y coberturas crujientes. ¡Todos los sabores valen **$1.000 la unidad**!
-        </p>
-        <motion.div 
-          className="handdrawn-decor-heart"
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <Heart size={24} className="text-pink-400" fill="#F48FB1" />
-        </motion.div>
-      </motion.div>
-
-      {/* Filters and Search Bar */}
-      <motion.div 
-        className="catalog-filters no-print"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        <div className="filter-group">
-          <motion.button 
-            className={`filter-btn ${selectedCategory === 'all' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('all')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Cargando sabores...</p>
+        </div>
+      ) : (
+        <>
+          {/* Modern Header */}
+          <motion.div 
+            className="content-header"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            Todos
-          </motion.button>
-          {categories.map(cat => (
-            <motion.button
-              key={cat.id}
-              className={`filter-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat.id)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <motion.div 
+              className="handdrawn-decor-sun"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
-              {cat.name}
-            </motion.button>
-          ))}
-        </div>
+              <Sparkles size={32} className="text-yellow-400" />
+            </motion.div>
+            <h1 className="content-title">Menú de Sabores</h1>
+            <p className="content-description">
+              ¡Hola! Explora nuestra variedad de alfajores hechos a mano con cariño. Rellenos abundantes, tapas horneadas y coberturas crujientes. ¡Todos los sabores valen **$1.000 la unidad**!
+            </p>
+            <motion.div 
+              className="handdrawn-decor-heart"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <Heart size={24} className="text-pink-400" fill="#F48FB1" />
+            </motion.div>
+          </motion.div>
 
-        <div className="search-input-wrapper">
-          <Search className="search-icon" size={18} />
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Buscar sabor o relleno..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </motion.div>
+          {/* Filters and Search Bar */}
+          <motion.div 
+            className="catalog-filters no-print"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="filter-group">
+              <motion.button 
+                className={`filter-btn ${selectedCategory === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedCategory('all')}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Todos
+              </motion.button>
+              {categories.map(cat => (
+                <motion.button
+                  key={cat.id}
+                  className={`filter-btn ${selectedCategory === cat.id ? 'active' : ''}`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {cat.name}
+                </motion.button>
+              ))}
+            </div>
 
-      {/* Wrapped Packaging Presentation Section */}
+            <div className="search-input-wrapper">
+              <Search className="search-icon" size={18} />
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Buscar sabor o relleno..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </motion.div>
+
+          {/* Wrapped Packaging Presentation Section */}
       <div className="wrapped-presentation-section no-print" style={{
         backgroundColor: '#FFFBF7',
         border: '3px dashed var(--border-pencil)',
@@ -368,6 +375,8 @@ export default function InteractiveCatalog() {
           </motion.div>
         )}
       </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }

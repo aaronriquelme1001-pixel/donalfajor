@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Image, Printer, Tag, Phone, Sun, Moon } from 'lucide-react';
+import { Smartphone, Image, Printer, Tag, Phone, Sun, Moon, Settings } from 'lucide-react';
 import InteractiveCatalog from './components/InteractiveCatalog';
 import SocialMediaGenerator from './components/SocialMediaGenerator';
 import PrintableMenus from './components/PrintableMenus';
 import StickerSheet from './components/StickerSheet';
+import FlavorAdmin from './components/FlavorAdmin';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('menu'); // 'menu', 'generator', 'print', 'stickers'
+  const [activeTab, setActiveTab] = useState('menu'); // 'menu', 'generator', 'print', 'stickers', 'admin'
   const [darkMode, setDarkMode] = useState(false);
 
   const navItems = [
@@ -15,6 +16,7 @@ export default function App() {
     { id: 'generator', icon: Image, label: 'Creador de Posts', emoji: '📸' },
     { id: 'print', icon: Printer, label: 'Afiches A4', emoji: '🖨️' },
     { id: 'stickers', icon: Tag, label: 'Stickers Wrapper', emoji: '🏷️' },
+    { id: 'admin', icon: Settings, label: 'Admin Sabores', emoji: '⚙️' },
   ];
 
   return (
@@ -82,6 +84,7 @@ export default function App() {
             {activeTab === 'generator' && <SocialMediaGenerator />}
             {activeTab === 'print' && <PrintableMenus />}
             {activeTab === 'stickers' && <StickerSheet />}
+            {activeTab === 'admin' && <FlavorAdmin />}
           </motion.div>
         </AnimatePresence>
       </main>
